@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/nav_camera"
+            android:icon="@drawable/ic_menu_camera"
+            android:title="Konto użytkownika" />
+        <item
+            android:id="@+id/nav_gallery"
+            android:icon="@drawable/ic_menu_gallery"
+            android:title="Informacje" />
+      </group>
+
+    <item android:title="Kategorie">
+        <menu>
+            <item
+                android:id="@+id/newMovies"
+                android:icon="@drawable/ic_menu_share"
+                android:title="Nowości" />
+            <item
+                android:id="@+id/comedyMovies"
+                android:icon="@drawable/ic_menu_manage"
+                android:title="Komedia" />
+            <item
+                android:id="@+id/horrorMovies"
+                android:icon="@drawable/ic_menu_slideshow"
+                android:title="Horror" />
+            <item
+                android:id="@+id/documentMovies"
+                android:icon="@drawable/ic_menu_send"
+                android:title="Dokumentalne" />
+        </menu>
+    </item>
+
+</menu>
