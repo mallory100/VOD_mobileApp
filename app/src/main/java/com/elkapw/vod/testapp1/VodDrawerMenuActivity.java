@@ -1,11 +1,13 @@
 package com.elkapw.vod.testapp1;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.util.Log;
@@ -20,6 +22,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.LinearLayout;
 import android.widget.ListView;
@@ -39,12 +42,12 @@ import java.util.List;
 
 public class VodDrawerMenuActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
-    ArrayList<VideoObject> video_array;
+    ArrayList<VideoObject> videoList;
     JSONParser jParserVideo = new JSONParser();
     JSONObject jsonVideo;
-    JSONArray json_arrayVideo;
     VideoObject videoObject;
-   // private static String url_getVideosData = "http://192.168.0.14:5080/red56/AndroidVideosDataServlet";
+
+ //   private static String url_getVideosData = "http://192.168.0.14:5080/red56/AndroidVideosDataServlet";
     private static String url_getVideosData = "http://192.168.1.21:5080/red56/AndroidVideosDataServlet";
 
     /**
@@ -56,30 +59,31 @@ public class VodDrawerMenuActivity extends AppCompatActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
-
-
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_vod_drawer_menu);
 
         //JSON array to ArrayList
-        video_array = new ArrayList<VideoObject>();
+        videoList = new ArrayList<VideoObject>();
         VideoDataReader vd = new VideoDataReader();
         vd.execute();
 
-/*      video_array.add(new VideoObject("name1", "url1", "desc1"));
-        video_array.add(new VideoObject("name2","url1","desc1"));
-        video_array.add(new VideoObject("name3","url1","desc1"));
+/*      videoList.add(new VideoObject("name1", "url1", "desc1"));
+        videoList.add(new VideoObject("name2","url1","desc1"));
+        videoList.add(new VideoObject("name3","url1","desc1"));
 */
 
         // Create the adapter to convert the array to views
-        VideosAdapter adapter = new VideosAdapter(this, video_array);
-        ListView listView = (ListView) findViewById(R.id.listViewMovies);   // Attach the adapter to a ListView
+        VideosAdapter adapter = new VideosAdapter(this, videoList);
+        final ListView listView = (ListView) findViewById(R.id.listViewMovies);   // Attach the adapter to a ListView
         listView.setAdapter(adapter);
 
 
+        //Create TOOLbar
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+
+        //Create FLOATINGACTIONBUTTON
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -89,26 +93,19 @@ public class VodDrawerMenuActivity extends AppCompatActivity
             }
         });
 
+        //Create DRAWERLAYOUT
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawer.setDrawerListener(toggle);
         toggle.syncState();
 
+        //Create NavigationView
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
-
-     //   TextView videoName = (TextView) findViewById(R.id.videoName) ;
-       TextView movieElement = (TextView) findViewById(R.id.textViewVideo);
-      //TextView movieElement1 = (TextView) listView.findViewById(R.id.videoName);
-
-////// POPRAWA null we view, zakomentowant onclick dzialaa!!
-     //   LinearLayout movieElement1 = (LinearLayout) findViewById(R.id.movieElement);
-       // View movieElementView = new View(this.getBaseContext());
-      //  movieElementView  = getLayoutInflater().inflate(R.layout.video_item, null);
-//        movieElement1.addView(movieElementView);
-
+        //Create test TEXTVIEW
+       TextView movieElement = (TextView) findViewById(R.id.testView);
           movieElement.setOnClickListener( new View.OnClickListener() {
             @Override
             public void onClick(View arg0) {
@@ -117,18 +114,28 @@ public class VodDrawerMenuActivity extends AppCompatActivity
                 startActivity(videoViewWindow);
             }});
 
+        // Create ListVIEW!!!
+        /*
+        View videoItemView  = getLayoutInflater().inflate(R.layout.video_item, null);
+        TextView videoElementName = (TextView) videoItemView.findViewById(R.id.videoName);
 
-    /*   videoName.setOnClickListener(new View.OnClickListener() {TextView videoName = (TextView) findViewById(R.id.videoName) ;
+*/
+
+        //Create listVIEW LISTENER
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener(){
+
             @Override
-            public void onClick(View arg0) {
-                Intent videoViewWindow = new Intent(getApplicationContext(), VideoViewActivity.class);
-                videoViewWindow.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                startActivity(videoViewWindow);
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Object item = listView.getItemAtPosition(position);
+                Intent intent = new Intent(getApplicationContext(),VideoViewActivity.class);
+                intent.putExtra("videoObject", videoList.get(position));
+                startActivity(intent);
             }
-        }); */
+
+        });
 
 
-        // ATTENTION: This was auto-generated to implement the App Indexing API.
+            // ATTENTION: This was auto-generated to implement the App Indexing API.
         // See https://g.co/AppIndexing/AndroidStudio for more information.
         client = new GoogleApiClient.Builder(this).addApi(AppIndex.API).build();
     }
@@ -237,6 +244,7 @@ public class VodDrawerMenuActivity extends AppCompatActivity
             super(context, 0, videos);
         }
 
+
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
             // Get the data item for this position
@@ -251,9 +259,16 @@ public class VodDrawerMenuActivity extends AppCompatActivity
             // Populate the data into the template view using the data object
             videoName.setText(video.getVideoName());
           //  videoHome.setText(video.getVideoDescription());
+
+
+
             // Return the completed view to render on screen
             return convertView;
         }
+
+
+
+
     }
 
 
@@ -272,12 +287,12 @@ public class VodDrawerMenuActivity extends AppCompatActivity
                 Log.d("Msg", jsonVideo.getString("Video"));
 
                 int size = json_array.length();
-                // video_array = new ArrayList<VideoObject>();
+                // videoList = new ArrayList<VideoObject>();
 
                 for (int i = 0; i < size; i++) {
                     JSONObject video = json_array.getJSONObject(i);
                     videoObject = new VideoObject(video.getString("videoname"), video.getString("videourl"), video.getString("videodescription"));
-                    video_array.add(videoObject);
+                    videoList.add(videoObject);
 
                 }
 
@@ -295,7 +310,7 @@ public class VodDrawerMenuActivity extends AppCompatActivity
     public void goToSpecificVideoContentActivity(){
 
         Intent specificVideoContent = new Intent(getApplicationContext(), VodDrawerMenuActivity.class);
-        specificVideoContent.putExtra("video_array", video_array);
+        specificVideoContent.putExtra("videoList", videoList);
         specificVideoContent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         startActivity(specificVideoContent);
 
