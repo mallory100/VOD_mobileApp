@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<account-authenticator xmlns:android="http://schemas.android.com/apk/res/android"
+android:accountType="com.elkapw.vod.full"
+android:icon="@drawable/star_icon"
+android:smallIcon="@drawable/star_icon"
+android:label="@string/accountName"
+android:accountPreferences="@xml/prefs"
+
+    />

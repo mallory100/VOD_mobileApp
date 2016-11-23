@@ -79,4 +79,11 @@
     </string>
 
 
+    <!-- Strings related to login -->
+    <string name="accountName">"Video on Demand"</string>
+    <string name="accountTypePremium">com.elkapw.vod.full</string>
+    <string name="accountTypeStandard">com.elkapw.vod.standard</string>
+
+
+
 </resources>

@@ -1,5 +1,8 @@
 package com.elkapw.vod.testapp1;
 
+import android.accounts.Account;
+import android.accounts.AccountAuthenticatorResponse;
+import android.accounts.AccountManager;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
@@ -11,6 +14,7 @@ import android.provider.MediaStore;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.support.design.widget.NavigationView;
@@ -26,6 +30,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.PopupWindow;
 import android.widget.TextView;
 
 import com.google.android.gms.appindexing.Action;
@@ -39,6 +44,7 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Handler;
 
 public class VodDrawerMenuActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -47,8 +53,9 @@ public class VodDrawerMenuActivity extends AppCompatActivity
     JSONObject jsonVideo;
     VideoObject videoObject;
 
- //   private static String url_getVideosData = "http://192.168.0.14:5080/red56/AndroidVideosDataServlet";
-    private static String url_getVideosData = "http://192.168.1.21:5080/red56/AndroidVideosDataServlet";
+
+   private static String url_getVideosData = "http://192.168.0.14:5080/red56/AndroidVideosDataServlet";
+  //  private static String url_getVideosData = "http://192.168.1.21:5080/red56/AndroidVideosDataServlet";
 
     /**
      * ATTENTION: This was auto-generated to implement the App Indexing API.
@@ -61,6 +68,8 @@ public class VodDrawerMenuActivity extends AppCompatActivity
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_vod_drawer_menu);
+
+
 
         //JSON array to ArrayList
         videoList = new ArrayList<VideoObject>();

@@ -29,6 +29,7 @@ public class VideoViewActivity extends Activity {
 
         videoDescription = (TextView) findViewById(R.id.videoDescription);
 
+
         videoView.setMediaController(new MediaController(this));
         System.out.print("NOWE ACTIVITY");
 
@@ -36,7 +37,10 @@ public class VideoViewActivity extends Activity {
         // http://localhost:5080/red56/movies/video2.mp4
 
       //  String videoUri = videoToDisplay.get(0).getVideoURL();
-        String uri = "http://192.168.1.21:5080/red56/movies/video2.mp4"; // lokalne wideo
+        String uri = videoToDisplay.getVideoURL();
+
+  //      String uri = "http://192.168.0.14:5080/red56/movies/video2.mp4"; //loklne
+       // String uri = "http://192.168.1.21:5080/red56/movies/video2.mp4"; // lokalne wideo
         String uri1 = "http://192.168.42.193:5080/vodmovies/vid1.mp4"; // lokalne usb tethering wideo
         String uri2 = "http://download.wavetlan.com/SVV/Media/HTTP/BlackBerry.mp4";
         String uri3 = "res/video/video2.mp4";
