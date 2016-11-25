@@ -1,7 +1,6 @@
 package com.elkapw.vod.testapp1;
 
 import android.os.AsyncTask;
-import android.util.Log;
 
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
@@ -16,16 +15,15 @@ import java.util.List;
  */
 class ServerAuthentication extends AsyncTask<String, String, String> {
         String s = null;
-
         JSONParser jParser = new JSONParser();
         JSONObject json;
-
 
         String accountToken;
         String accountLogin, accountPassword;
         boolean isTokenReturned = false;
         boolean isAccountCreated = false;
         boolean isUserLogged = false;
+        boolean isSuccessfullyExecutedFlag = false;
 
         private static String url_returnToken = "http://192.168.0.14:5080/red56/AndroidReturnTokenServlet";
         private static String url_login = "http://192.168.0.14:5080/red56/AndroidLoginServlet";
@@ -34,30 +32,27 @@ class ServerAuthentication extends AsyncTask<String, String, String> {
     ServerAuthentication() {
     }
 
-
     protected void setUserLogin(String username) {
             accountLogin = username;
         };
-
     protected void setUserPassword(String pass) {
         accountPassword = pass;
     };
-
     protected void setUserToken(String token) {
         accountToken = token;
     };
 
-
     protected String getUserLogin() {
         return accountLogin;
     };
-
     protected String getUserPassword() {
         return accountPassword;
     };
-
     protected String getUserToken() {
         return accountToken;
+    };
+    protected boolean isSuccessfullyExecuted() {
+        return isSuccessfullyExecutedFlag;
     };
 
 
@@ -98,7 +93,6 @@ class ServerAuthentication extends AsyncTask<String, String, String> {
 
     }
 
-
         @Override
         protected String doInBackground(String... args) {
 
@@ -111,23 +105,22 @@ class ServerAuthentication extends AsyncTask<String, String, String> {
                 if (isTokenReturned == true ){
                     accountToken = json.getString("token");
 
-                    System.out.println("TOKEN TO " + accountToken);
+                    System.out.println("ServerAuth - DoInBackground - TOKEN TO " + accountToken);
                 }
 
                 if (s.equals("success")) {
 
-                    System.out.println("Operacja pomyślnie wykonana!!");
+                    System.out.println("ServerAuth - DoInBackground - Operacja pomyślnie wykonana!!");
+                    isSuccessfullyExecutedFlag = true;
 
                 }
-
-                System.out.println("TOKEN TO " + accountToken);
 
             } catch (JSONException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
             }
 
-            return null;
+            return "Wykonano doinBackground";
         }
 
         @Override
@@ -138,8 +131,9 @@ class ServerAuthentication extends AsyncTask<String, String, String> {
 
         @Override
         protected void onPostExecute(String result) {
+
             super.onPostExecute(result);
-            System.out.println("TOKEN TO " + accountToken);
+            System.out.println("ServerAuth - ON POST EXECUTE - DONE!!");
 
         }
 
