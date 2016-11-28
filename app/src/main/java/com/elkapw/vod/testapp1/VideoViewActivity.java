@@ -26,13 +26,10 @@ public class VideoViewActivity extends Activity {
 
         // OBSLUGA WYSWIETLENIA POJEDYNCZEGO FILMIKU Z SERWERA
         videoView = (VideoView) findViewById(R.id.videoView1); //przypisanie do elementu layoutu
-
         videoDescription = (TextView) findViewById(R.id.videoDescription);
 
 
         videoView.setMediaController(new MediaController(this));
-        System.out.print("NOWE ACTIVITY");
-
         videoDescription.setText(videoToDisplay.getVideoDescription());
         // http://localhost:5080/red56/movies/video2.mp4
 

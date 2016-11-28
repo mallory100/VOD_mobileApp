@@ -59,8 +59,6 @@ public class LoginAuthenticatorActivity extends Activity {
 
     String mAccountType;
     Account[] acc;
-    LinearLayout mainLayout;
-    PopupWindow pw;
     ListView listViewAccounts;
     ArrayAdapter<String> arrayAdapter;
     List<String> accountsArrayList, list;

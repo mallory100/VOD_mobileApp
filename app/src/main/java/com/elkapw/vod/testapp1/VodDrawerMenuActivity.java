@@ -6,6 +6,7 @@ import android.accounts.AccountManager;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -32,27 +33,31 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.PopupWindow;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.gms.appindexing.Action;
 import com.google.android.gms.appindexing.AppIndex;
 import com.google.android.gms.common.api.GoogleApiClient;
 
 import org.apache.http.NameValuePair;
+import org.apache.http.message.BasicNameValuePair;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Handler;
 
 public class VodDrawerMenuActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
+
     ArrayList<VideoObject> videoList;
     JSONParser jParserVideo = new JSONParser();
     JSONObject jsonVideo;
     VideoObject videoObject;
-
+    boolean isUserLogged = false;
 
    private static String url_getVideosData = "http://192.168.0.14:5080/red56/AndroidVideosDataServlet";
   //  private static String url_getVideosData = "http://192.168.1.21:5080/red56/AndroidVideosDataServlet";
@@ -69,35 +74,26 @@ public class VodDrawerMenuActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_vod_drawer_menu);
 
-
-
         //JSON array to ArrayList
         videoList = new ArrayList<VideoObject>();
         VideoDataReader vd = new VideoDataReader();
         vd.execute();
-
-/*      videoList.add(new VideoObject("name1", "url1", "desc1"));
-        videoList.add(new VideoObject("name2","url1","desc1"));
-        videoList.add(new VideoObject("name3","url1","desc1"));
-*/
 
         // Create the adapter to convert the array to views
         VideosAdapter adapter = new VideosAdapter(this, videoList);
         final ListView listView = (ListView) findViewById(R.id.listViewMovies);   // Attach the adapter to a ListView
         listView.setAdapter(adapter);
 
-
         //Create TOOLbar
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
 
         //Create FLOATINGACTIONBUTTON
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
+                Snackbar.make(view, "TO DO", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
             }
         });
@@ -129,6 +125,9 @@ public class VodDrawerMenuActivity extends AppCompatActivity
         TextView videoElementName = (TextView) videoItemView.findViewById(R.id.videoName);
 
 */
+
+
+
 
         //Create listVIEW LISTENER
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener(){
@@ -188,9 +187,26 @@ public class VodDrawerMenuActivity extends AppCompatActivity
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
-        if (id == R.id.nav_camera) {
+        if (id == R.id.userAccount) {
             // Handle the camera action
-        } else if (id == R.id.nav_gallery) {
+        } else if (id == R.id.accounts) {
+
+            AccountObject accountObject = new AccountObject(this);
+            Account[] acc = accountObject.returnAccountList(getString(R.string.accountTypePremium), this);
+
+            // BRAK KONT - popup Toast
+            if( acc.length == 0 ) {
+                Log.e(null, "No accounts of type " + R.string.accountTypePremium + " found");
+                Toast.makeText(this, "No accounts", Toast.LENGTH_SHORT).show();
+            }
+
+            // ISTNIEJA KONTA - popup z mozliwoscia wyboru konta:
+            if (acc.length != 0) {
+
+                Toast.makeText(this, "Accounts exists", Toast.LENGTH_SHORT).show();
+
+                this.selectAccountsPopup(acc);
+            }
 
         } else if (id == R.id.newMovies) {
 
@@ -280,10 +296,9 @@ public class VodDrawerMenuActivity extends AppCompatActivity
 
     }
 
-
+// POBRANIE LISTY FILMoW Z SERWERA
     private class VideoDataReader extends AsyncTask<String, String, String> {
         String s = null;
-        AlertDialog.Builder popup;
 
         @Override
         protected String doInBackground(String... args) {
@@ -312,6 +327,28 @@ public class VodDrawerMenuActivity extends AppCompatActivity
 
             return null;
         }
+
+
+        @Override
+        protected void onPreExecute() {
+
+            super.onPreExecute();
+            System.out.println("ServerAuth - ON PRE EXECUTE - DONE!!");
+
+
+        }
+
+
+        @Override
+        protected void onPostExecute(String result) {
+
+            super.onPostExecute(result);
+            System.out.println("ServerAuth - ON PRE EXECUTE - DONE!!");
+
+
+
+        }
+
     }
 
 
@@ -324,6 +361,155 @@ public class VodDrawerMenuActivity extends AppCompatActivity
         startActivity(specificVideoContent);
 
 
+    }
+
+
+    private void selectAccountsPopup(Account[] acc){
+        View inflatedView = getLayoutInflater().inflate(R.layout.accounts_popup, null);
+        ListView listViewAccounts = (ListView) inflatedView.findViewById(R.id.listViewAccounts);
+
+        final AccountObject accountObject = new AccountObject(this);
+
+        List<String> list = new ArrayList<String>() ;
+
+        for (int j =0; j <acc.length; j++){
+            list.add(acc[j].name);
+            System.out.println(list);
+        }
+
+        CharSequence[] cs = list.toArray(new CharSequence[list.size()]);
+        System.out.println("CS TO JEST: " + Arrays.toString(cs));
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(VodDrawerMenuActivity.this);
+        builder.setTitle("Jestes zalogowany na urzadzeniu! ");
+
+        // WYBRANIE ISTNIEJACEGO KONTA:
+        //   builder.setMessage("Wybierz jedno z ponizszych kont badz utworz nowe");
+        builder.setItems(cs, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                System.out.println("Klikniety " + which);
+                accountObject.setAccountID(which);
+
+                Account mAccount = accountObject.acc[which];
+                accountObject.accountName = accountObject.acc[which].name;
+                accountObject.getExistingAccountAuthToken(mAccount, "TOKEN", getBaseContext(), true);
+
+                while (accountObject.getThreadStatus() != Thread.State.TERMINATED) {
+                    System.out.println("WATEK NIE ZOSTAL UKONCZONY = " + accountObject.getThreadStatus());
+                    System.out.println("TOKEN Uzytkownika TO : " + accountObject.accountToken);
+
+                }
+
+                System.out.println("TOKEN Uzytkownika TO : " +  accountObject.accountToken);
+
+                ServerAuthLogin newRequestLogin = new ServerAuthLogin();
+                newRequestLogin.execute(accountObject.accountName, accountObject.accountToken);
+
+                System.out.println("STATUS REQUESTA " + newRequestLogin.getStatus());
+
+            }
+
+        });
+
+        final AlertDialog dialog = builder.create();
+
+        new android.os.Handler().postDelayed(new Runnable() {
+
+            public void run() {
+                dialog.show();
+            }
+
+        }, 1000L);
+
+    }
+
+
+
+
+    class ServerAuthLogin extends AsyncTask<String, String, String> {
+        String s = null;
+        JSONParser jParser = new JSONParser();
+        JSONObject json;
+
+        String accountToken;
+        String accountLogin;
+
+        private String url_login = "http://192.168.0.14:5080/red56/AndroidLoginServlet";
+
+
+        @Override
+        protected String doInBackground(String... args) {
+            accountLogin = args[0];
+            accountToken = args[1];
+
+            // Getting username and password from user input
+            List<NameValuePair> params = new ArrayList<NameValuePair>();
+            params.add(new BasicNameValuePair("u", accountLogin));
+            params.add(new BasicNameValuePair("p", accountToken));
+            json = jParser.makeHttpRequest(url_login, "GET", params);
+            System.out.println("OPERACJA : LOGIN USER");
+
+            return "Wykonano doinBackground";
+        }
+
+        @Override
+        protected void onPreExecute() {
+
+            super.onPreExecute();
+            System.out.println("ServerAuth - ON PRE EXECUTE - DONE!!");
+
+
+        }
+
+        @Override
+        protected void onPostExecute(String result) {
+
+            super.onPostExecute(result);
+            try {
+                //informacja zwrotna czy powodzenie
+                s = json.getString("info");
+                if (s.equals("success")) {
+                    System.out.println("ServerAuth - DoInBackground - SUCCESS!!");
+                    goToVodContentActivity();
+
+                } else {
+
+                    System.out.println("ServerAuth - DoInBackground - FAIL!!");
+                    Toast.makeText(VodDrawerMenuActivity.this, "Token jest nieaktualny", Toast.LENGTH_LONG).show();
+                    goToLoginAuthenticatorActivity(); //powrot do ekranu logowania
+
+
+                }
+
+            } catch (JSONException e) {
+                // TODO Auto-generated catch block
+
+                e.printStackTrace();
+
+            }
+
+
+            System.out.println("ServerAuth - ON POST EXECUTE - DONE!!");
+
+        }
+
+    }
+
+
+
+    // Funkcje obslugujace przejscia miedzy Activity
+    public void goToLoginAuthenticatorActivity() {
+        Intent authenticatorActivityWindow = new Intent(getApplicationContext(), LoginAuthenticatorActivity.class);
+        authenticatorActivityWindow.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        startActivity(authenticatorActivityWindow);
+    }
+
+    public void goToVodContentActivity(){
+
+        Intent vodContent = new Intent(getApplicationContext(), VodDrawerMenuActivity.class);
+        vodContent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        startActivity(vodContent);
     }
 
 

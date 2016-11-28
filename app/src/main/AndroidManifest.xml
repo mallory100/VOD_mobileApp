@@ -39,6 +39,7 @@
             android:exported="true">
             <intent-filter>
                 <action android:name="android.accounts.AccountAuthenticator" />
+
             </intent-filter>
 
             <meta-data
@@ -46,20 +47,18 @@
                 android:resource="@xml/authenticator" />
         </service>
 
-
-
         <activity
             android:name=".LoginAuthenticatorActivity"
             android:label="Video On Demand LOGIN">
             <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
                 <action android:name="android.accounts.AccountAuthenticator" />
-                 <category android:name="android.intent.category.LAUNCHER" />
+
             </intent-filter>
         </activity>
         <activity
             android:name=".VideoViewActivity"
             android:label="Video On Demand" />
+
 
         <!--
  ATTENTION: This was auto-generated to add Google Play services to your project for
@@ -69,11 +68,22 @@
             android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version" />
 
-        <activity android:name=".PopupActivity" />
         <activity
             android:name=".VodDrawerMenuActivity"
             android:label="Video On Demand"
-            android:theme="@style/AppTheme.NoActionBar" />
+            android:theme="@style/AppTheme.NoActionBar">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <action android:name="android.accounts.AccountAuthenticator" />
+                <category android:name="android.intent.category.LAUNCHER" />
+
+            </intent-filter>
+        </activity>
+
+
+
+
+
         <activity android:name=".SignUpActivity"></activity>
     </application>
 
