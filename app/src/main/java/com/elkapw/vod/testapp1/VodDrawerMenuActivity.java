@@ -58,8 +58,9 @@ public class VodDrawerMenuActivity extends AppCompatActivity
     JSONObject jsonVideo;
     VideoObject videoObject;
     boolean isUserLogged = false;
-
-   private static String url_getVideosData = "http://192.168.0.14:5080/red56/AndroidVideosDataServlet";
+    String videoCategory;
+    ListView listView;
+    private static String url_getVideosData = "http://192.168.0.14:5080/red56/AndroidVideosDataServlet";
   //  private static String url_getVideosData = "http://192.168.1.21:5080/red56/AndroidVideosDataServlet";
 
     /**
@@ -71,18 +72,28 @@ public class VodDrawerMenuActivity extends AppCompatActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
+        videoCategory = "Free";
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_vod_drawer_menu);
 
-        //JSON array to ArrayList
+        //Create ListView with movies
+        listView = (ListView) findViewById(R.id.listViewMovies);
         videoList = new ArrayList<VideoObject>();
-        VideoDataReader vd = new VideoDataReader();
-        vd.execute();
+        loadVideosFromServer();
 
-        // Create the adapter to convert the array to views
-        VideosAdapter adapter = new VideosAdapter(this, videoList);
-        final ListView listView = (ListView) findViewById(R.id.listViewMovies);   // Attach the adapter to a ListView
-        listView.setAdapter(adapter);
+        //Create listVIEW LISTENER
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Object item = listView.getItemAtPosition(position);
+                Intent intent = new Intent(getApplicationContext(), VideoViewActivity.class);
+                intent.putExtra("videoObject", videoList.get(position));
+                startActivity(intent);
+            }
+
+        });
 
         //Create TOOLbar
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -129,18 +140,7 @@ public class VodDrawerMenuActivity extends AppCompatActivity
 
 
 
-        //Create listVIEW LISTENER
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener(){
 
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Object item = listView.getItemAtPosition(position);
-                Intent intent = new Intent(getApplicationContext(),VideoViewActivity.class);
-                intent.putExtra("videoObject", videoList.get(position));
-                startActivity(intent);
-            }
-
-        });
 
 
             // ATTENTION: This was auto-generated to implement the App Indexing API.
@@ -208,13 +208,21 @@ public class VodDrawerMenuActivity extends AppCompatActivity
                 this.selectAccountsPopup(acc);
             }
 
-        } else if (id == R.id.newMovies) {
+        } else if (id == R.id.freeMovies) {
 
-        } else if (id == R.id.comedyMovies) {
+            videoCategory = "Free";
+            loadVideosFromServer();
 
-        } else if (id == R.id.horrorMovies) {
+        } else if (id == R.id.cityMovies) {
 
-        } else if (id == R.id.documentMovies) {
+            videoCategory = "City";
+            loadVideosFromServer();
+
+
+        } else if (id == R.id.natureMovies) {
+
+            videoCategory = "Nature";
+            loadVideosFromServer();
 
         }
 
@@ -303,6 +311,7 @@ public class VodDrawerMenuActivity extends AppCompatActivity
         @Override
         protected String doInBackground(String... args) {
             List<NameValuePair> params = new ArrayList<NameValuePair>();
+           params.add(new BasicNameValuePair("category", videoCategory));
             jsonVideo = jParserVideo.makeHttpRequest(url_getVideosData, "GET", params);
 
             try {
@@ -312,6 +321,8 @@ public class VodDrawerMenuActivity extends AppCompatActivity
 
                 int size = json_array.length();
                 // videoList = new ArrayList<VideoObject>();
+
+                videoList.clear();
 
                 for (int i = 0; i < size; i++) {
                     JSONObject video = json_array.getJSONObject(i);
@@ -333,7 +344,8 @@ public class VodDrawerMenuActivity extends AppCompatActivity
         protected void onPreExecute() {
 
             super.onPreExecute();
-            System.out.println("ServerAuth - ON PRE EXECUTE - DONE!!");
+            System.out.println("pobranie filmow - ON PRE EXECUTE - DONE!!");
+
 
 
         }
@@ -343,7 +355,8 @@ public class VodDrawerMenuActivity extends AppCompatActivity
         protected void onPostExecute(String result) {
 
             super.onPostExecute(result);
-            System.out.println("ServerAuth - ON PRE EXECUTE - DONE!!");
+            System.out.println("pobranie filmow - ON PRE EXECUTE - DONE!!");
+
 
 
 
@@ -510,6 +523,20 @@ public class VodDrawerMenuActivity extends AppCompatActivity
         Intent vodContent = new Intent(getApplicationContext(), VodDrawerMenuActivity.class);
         vodContent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         startActivity(vodContent);
+    }
+
+    public void loadVideosFromServer(){
+
+        //JSON array to ArrayList
+        VideoDataReader vd = new VideoDataReader();
+        vd.execute();
+
+        // Create the adapter to convert the array to views
+        VideosAdapter adapter = new VideosAdapter(this, videoList);
+          // Attach the adapter to a ListView
+        listView.setAdapter(adapter);
+
+
     }
 
 
