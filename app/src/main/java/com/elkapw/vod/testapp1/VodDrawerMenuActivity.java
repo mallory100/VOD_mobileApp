@@ -1,9 +1,6 @@
 package com.elkapw.vod.testapp1;
 
 import android.accounts.Account;
-import android.accounts.AccountAuthenticatorResponse;
-import android.accounts.AccountManager;
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.ClipData;
 import android.content.Context;
@@ -31,9 +28,11 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.PopupWindow;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -51,6 +50,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Handler;
+import java.util.zip.Inflater;
 
 public class VodDrawerMenuActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -65,6 +65,8 @@ public class VodDrawerMenuActivity extends AppCompatActivity
     private static String url_getVideosData = "http://192.168.0.14:5080/red56/AndroidVideosDataServlet";
     String currentAccountLogin;
     Menu menu;
+    Toolbar toolbar;
+    Button buyButton,watchButton;
   //  private static String url_getVideosData = "http://192.168.1.21:5080/red56/AndroidVideosDataServlet";
 
     /**
@@ -72,6 +74,11 @@ public class VodDrawerMenuActivity extends AppCompatActivity
      * See https://g.co/AppIndexing/AndroidStudio for more information.
      */
     private GoogleApiClient client;
+
+
+
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -102,6 +109,7 @@ public class VodDrawerMenuActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_vod_drawer_menu);
 
+
         //Create ListView with movies
         listView = (ListView) findViewById(R.id.listViewMovies);
         listView.setFocusable(true);
@@ -113,16 +121,23 @@ public class VodDrawerMenuActivity extends AppCompatActivity
 
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Object item = listView.getItemAtPosition(position);
-                Intent intent = new Intent(getApplicationContext(), VideoViewActivity.class);
-                intent.putExtra("videoObject", videoList.get(position));
-                startActivity(intent);
+              //  goToSpecificVideoContentActivity(position);
             }
 
         });
 
+/*
+        watchButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View arg0) {
+                System.out.println("Klikniety ogladaj!!!");
+
+                goToSpecificVideoContentActivity();
+
+            }});*/
+
         //Create TOOLbar
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
         //Create FLOATINGACTIONBUTTON
@@ -148,18 +163,29 @@ public class VodDrawerMenuActivity extends AppCompatActivity
 
         //Create test TEXTVIEW - Opis dla uzytkownika
        TextView movieElement = (TextView) findViewById(R.id.testView);
-        movieElement.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View arg0) {
-                Intent videoViewWindow = new Intent(getApplicationContext(), VideoViewActivity.class);
-                videoViewWindow.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                startActivity(videoViewWindow);
-            }
-        });
+
+    //    buyButton = (Button) findViewById(R.id.buyButton);
+     //   watchButton = (Button) findViewById(R.id.watchButton);
+
+/*
+        LinearLayout vodContentLayout = new LinearLayout(this);
+        //  vodContentLayout.la
+
+        LayoutInflater inflater;
+        inflater = (LayoutInflater) this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        RelativeLayout layout = (RelativeLayout) inflater.inflate(R.layout.video_item ,
+                null);
 
 
+     //   layout.lay
+      //  LayoutInflater inflater = LayoutInflater.from(VodDrawerMenuActivity.this); // 1
+      //  View v = inflater.inflate(R.layout.video_item, vodContentLayout, true);
+       // View convertView = LayoutInflater.from(getBaseContext()).inflate(R.layout.video_item, null);
+       watchButton = (Button) layout.findViewById(R.id.watchButton);
+       // videoElementLayout.findViewById(R.id.watchButton);
 
 
+*/
 
 
 
@@ -184,7 +210,7 @@ public class VodDrawerMenuActivity extends AppCompatActivity
 
         // ISTNIEJA KONTA - popup z mozliwoscia wyboru konta:
         if (acc.length >1 && isUserLogged !=true) {
-            Toast.makeText(this, "Accounts exists", Toast.LENGTH_SHORT).show();
+       //     Toast.makeText(this, "Accounts exists", Toast.LENGTH_SHORT).show();
             this.selectAccountsPopup(acc);
         }
         // istnieje jedno konto wiec nim sie logujemy
@@ -284,13 +310,13 @@ public class VodDrawerMenuActivity extends AppCompatActivity
             // BRAK KONT - popup Toast
             if( acc.length == 0 ) {
                 Log.e(null, "No accounts of type " + R.string.accountTypePremium + " found");
-                Toast.makeText(this, "No accounts", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Brak kont na urz¹dzeniu", Toast.LENGTH_SHORT).show();
             }
 
             // ISTNIEJA KONTA - popup z mozliwoscia wyboru konta:
             if (acc.length != 0) {
 
-                Toast.makeText(this, "Accounts exists", Toast.LENGTH_SHORT).show();
+               // Toast.makeText(this, "Accounts exists", Toast.LENGTH_SHORT).show();
 
                 this.selectAccountsPopup(acc);
             }
@@ -314,6 +340,8 @@ public class VodDrawerMenuActivity extends AppCompatActivity
                 videoCategory = "Free";
                 loadVideosFromServer();
                 item.setTitle("Zaloguj");
+                Toast.makeText(this, "Pomyœlnie wylogowano", Toast.LENGTH_LONG).show();
+
 
 
             }
@@ -408,11 +436,10 @@ public class VodDrawerMenuActivity extends AppCompatActivity
             super(context, 0, videos);
         }
 
-
         @Override
-        public View getView(int position, View convertView, ViewGroup parent) {
+        public View getView(final int position, View convertView, ViewGroup parent) {
             // Get the data item for this position
-            VideoObject video = getItem(position);
+            final VideoObject video = getItem(position);
             // Check if an existing view is being reused, otherwise inflate the view
             if (convertView == null) {
                 convertView = LayoutInflater.from(getContext()).inflate(R.layout.video_item, parent, false);
@@ -421,12 +448,23 @@ public class VodDrawerMenuActivity extends AppCompatActivity
             TextView videoName = (TextView) convertView.findViewById(R.id.videoName);
             Button buyButton = (Button) convertView.findViewById(R.id.buyButton);
             TextView videoDescription = (TextView) convertView.findViewById(R.id.videoDescription);
+            Button watchButton = (Button) convertView.findViewById(R.id.watchButton);
 
             //    TextView videoHome = (TextView) convertView.findViewById(R.id.videoHome);
             // Populate the data into the template view using the data object
             videoName.setText(video.getVideoName());
             videoDescription.setText(video.getVideoDescription());
-          //  videoHome.setText(video.getVideoDescription());
+
+
+            watchButton.setClickable(true);
+            watchButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View arg0) {
+                    System.out.println("Klikniety ogladaj!!! pozycja nr " + position);
+                    goToSpecificVideoContentActivity(video);
+
+                }
+            });
 
 
 
@@ -501,15 +539,7 @@ public class VodDrawerMenuActivity extends AppCompatActivity
 
 
 
-    public void goToSpecificVideoContentActivity(){
 
-        Intent specificVideoContent = new Intent(getApplicationContext(), VodDrawerMenuActivity.class);
-        specificVideoContent.putExtra("videoList", videoList);
-        specificVideoContent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        startActivity(specificVideoContent);
-
-
-    }
 
 
     private void selectAccountsPopup(Account[] acc){
@@ -675,6 +705,17 @@ public class VodDrawerMenuActivity extends AppCompatActivity
         startActivity(vodContent);
     }
 
+
+    public void goToSpecificVideoContentActivity(VideoObject video){
+
+        Intent specificVideoContent = new Intent(getApplicationContext(), VideoViewActivity.class);
+        specificVideoContent.putExtra("videoObject", video);
+        specificVideoContent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        startActivity(specificVideoContent);
+
+
+    }
+
     public void loadVideosFromServer(){
 
         //JSON array to ArrayList
@@ -688,6 +729,8 @@ public class VodDrawerMenuActivity extends AppCompatActivity
 
 
     }
+
+
 
 
 }
