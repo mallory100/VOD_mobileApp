@@ -2,18 +2,16 @@ package com.elkapw.vod.testapp1;
 
 import android.accounts.Account;
 import android.app.AlertDialog;
-import android.content.ClipData;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.provider.MediaStore;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.support.design.widget.NavigationView;
@@ -28,11 +26,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.EditText;
-import android.widget.LinearLayout;
 import android.widget.ListView;
-import android.widget.PopupWindow;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -49,8 +43,6 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.logging.Handler;
-import java.util.zip.Inflater;
 
 public class VodDrawerMenuActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -67,6 +59,7 @@ public class VodDrawerMenuActivity extends AppCompatActivity
     Menu menu;
     Toolbar toolbar;
     Button buyButton,watchButton;
+
   //  private static String url_getVideosData = "http://192.168.1.21:5080/red56/AndroidVideosDataServlet";
 
     /**
@@ -76,47 +69,34 @@ public class VodDrawerMenuActivity extends AppCompatActivity
     private GoogleApiClient client;
 
 
-
-
-
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
         videoCategory = "Free";
 
-
+        //pobranie LOGINU zalogowanego uzytkownika
         if (savedInstanceState == null) {
             Bundle extras = getIntent().getExtras();
             if(extras == null) {
                 currentAccountLogin= null;
             } else {
                 currentAccountLogin= extras.getString("Login");
-
-
             }
-            System.out.println("savedInstanceState = null");
-
         } else {
             currentAccountLogin = (String) savedInstanceState.getSerializable("Login");
-            System.out.println("savedInstanceState != null");
-
         }
-
-
-
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_vod_drawer_menu);
 
 
-        //Create ListView with movies
+        //Stworzenie ListView z filmami pobranymi z serwera
         listView = (ListView) findViewById(R.id.listViewMovies);
         listView.setFocusable(true);
         videoList = new ArrayList<VideoObject>();
         loadVideosFromServer();
 
-        //Create listVIEW LISTENER
+        // Listener Listview
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 
             @Override
@@ -126,21 +106,11 @@ public class VodDrawerMenuActivity extends AppCompatActivity
 
         });
 
-/*
-        watchButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View arg0) {
-                System.out.println("Klikniety ogladaj!!!");
-
-                goToSpecificVideoContentActivity();
-
-            }});*/
-
-        //Create TOOLbar
+        //Stworzenie TOOLbara
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        //Create FLOATINGACTIONBUTTON
+        //Stworzenie FLOATINGACTIONBUTTON - do pomyslenia funkcjonalnosc
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -150,7 +120,7 @@ public class VodDrawerMenuActivity extends AppCompatActivity
             }
         });
 
-        //Create DRAWERLAYOUT
+        //Stworzenie DRAWERLAYOUT >???
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
@@ -159,56 +129,11 @@ public class VodDrawerMenuActivity extends AppCompatActivity
 
 
 
-
-
-        //Create test TEXTVIEW - Opis dla uzytkownika
-       TextView movieElement = (TextView) findViewById(R.id.testView);
-
-    //    buyButton = (Button) findViewById(R.id.buyButton);
-     //   watchButton = (Button) findViewById(R.id.watchButton);
-
-/*
-        LinearLayout vodContentLayout = new LinearLayout(this);
-        //  vodContentLayout.la
-
-        LayoutInflater inflater;
-        inflater = (LayoutInflater) this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        RelativeLayout layout = (RelativeLayout) inflater.inflate(R.layout.video_item ,
-                null);
-
-
-     //   layout.lay
-      //  LayoutInflater inflater = LayoutInflater.from(VodDrawerMenuActivity.this); // 1
-      //  View v = inflater.inflate(R.layout.video_item, vodContentLayout, true);
-       // View convertView = LayoutInflater.from(getBaseContext()).inflate(R.layout.video_item, null);
-       watchButton = (Button) layout.findViewById(R.id.watchButton);
-       // videoElementLayout.findViewById(R.id.watchButton);
-
-
-*/
-
-
-
-
-
-
-        // Create ListVIEW!!!
-        /*
-        View videoItemView  = getLayoutInflater().inflate(R.layout.video_item, null);
-        TextView videoElementName = (TextView) videoItemView.findViewById(R.id.videoName);
-
-*/
-
-
-
         // PRZY uruchomieniu wyswietlamy zalogowane konta:
         AccountObject accountObject = new AccountObject(this);
         Account[] acc = accountObject.returnAccountList(getString(R.string.accountTypePremium), this);
 
-
-
-
-        // ISTNIEJA KONTA - popup z mozliwoscia wyboru konta:
+        // ISTNIEJA przynajmniej 2 konta - popup z mozliwoscia wyboru konta:
         if (acc.length >1 && isUserLogged !=true) {
        //     Toast.makeText(this, "Accounts exists", Toast.LENGTH_SHORT).show();
             this.selectAccountsPopup(acc);
@@ -216,16 +141,13 @@ public class VodDrawerMenuActivity extends AppCompatActivity
         // istnieje jedno konto wiec nim sie logujemy
         if (acc.length ==1 && isUserLogged !=true){
             currentAccountLogin = acc[0].name;
-
         }
-
+        // ustawienie flagi ze uzytkownik jest zalogowany
         if (currentAccountLogin != null){
             isUserLogged = true;
         }
 
-
-
-        //Create NavigationView
+        //Stworzenie NavigationView
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
@@ -236,27 +158,38 @@ public class VodDrawerMenuActivity extends AppCompatActivity
             System.out.println("czy zalogowany" + isUserLogged + "powinno zmienic na wyloguj");
         }
         if (isUserLogged == false){
+
             this.menu.findItem(R.id.logout).setTitle("Zaloguj");
             System.out.println("czy zalogowany" + isUserLogged + "powinno zmienic na zaloguj");
 
         }
 
+        setVodCategoryDescription();
+        setVodContentDescription(" ");
+
         System.out.println("Aktualnie zalogowany: " + currentAccountLogin);
-
-        movieElement.setText("Witaj u¿ytkowniku : " + currentAccountLogin);
-
-
-
 
             // ATTENTION: This was auto-generated to implement the App Indexing API.
         // See https://g.co/AppIndexing/AndroidStudio for more information.
         client = new GoogleApiClient.Builder(this).addApi(AppIndex.API).build();
     }
 
+    //Stworzenie TEXTVIEW - Opisy dla uzytkownika
+    private void setVodContentDescription(String mDescription){
 
+        TextView vodContentDescription = (TextView) findViewById(R.id.vodContentDescription);
+        if (isUserLogged==true){
+            vodContentDescription.setText("Witaj u¿ytkowniku : " + currentAccountLogin + " " + mDescription);
+        }
+        else {
+            vodContentDescription.setText(mDescription);
+        }
+    }
 
-
-
+    private void setVodCategoryDescription(){
+        TextView vodCategoryDescription = (TextView) findViewById(R.id.vodCategoryDescription);
+        vodCategoryDescription.setText("Przegl¹dasz filmy z kategorii: "+ videoCategory);
+    }
 
     @Override
     public void onBackPressed() {
@@ -273,9 +206,6 @@ public class VodDrawerMenuActivity extends AppCompatActivity
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.vod_drawer_menu, menu);
         this.menu = menu;
-
-
-
         return true;
     }
 
@@ -323,15 +253,11 @@ public class VodDrawerMenuActivity extends AppCompatActivity
 
         } else if (id == R.id.logout) {
 
-
-
             System.out.println("ITEM TYTUL" + item.getTitle());
             if (item.getTitle().toString().equals("Zaloguj")){
 
                 goToLoginAuthenticatorActivity();
             }
-
-
             if (item.getTitle().toString().equals("Wyloguj")){
 
                 isUserLogged = false;
@@ -339,45 +265,38 @@ public class VodDrawerMenuActivity extends AppCompatActivity
                 accountObject.removeAccount(this);
                 videoCategory = "Free";
                 loadVideosFromServer();
+                setVodCategoryDescription();
+                setVodContentDescription("Witaj! Zaloguj sie by zobaczysz wszystkie materia³y!");
                 item.setTitle("Zaloguj");
                 Toast.makeText(this, "Pomyœlnie wylogowano", Toast.LENGTH_LONG).show();
-
-
-
             }
-
-
-
-
         } else if (id == R.id.freeMovies) {
 
             videoCategory = "Free";
             loadVideosFromServer();
+            setVodCategoryDescription();
 
         } else if (id == R.id.cityMovies) {
-
 
             if (isUserLogged==true) {
                 videoCategory = "City";
                 loadVideosFromServer();
+                setVodCategoryDescription();
                             }
             else {
                 showNoPermissionPopup();
-
             }
-
 
         } else if (id == R.id.natureMovies) {
 
             if (isUserLogged==true) {
                 videoCategory = "Nature";
                 loadVideosFromServer();
+                setVodCategoryDescription();
             }
             else {
                 showNoPermissionPopup();
             }
-
-
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -446,7 +365,7 @@ public class VodDrawerMenuActivity extends AppCompatActivity
             }
             // Lookup view for data population
             TextView videoName = (TextView) convertView.findViewById(R.id.videoName);
-            Button buyButton = (Button) convertView.findViewById(R.id.buyButton);
+            buyButton = (Button) convertView.findViewById(R.id.buyButton);
             TextView videoDescription = (TextView) convertView.findViewById(R.id.videoDescription);
             Button watchButton = (Button) convertView.findViewById(R.id.watchButton);
 
@@ -466,6 +385,26 @@ public class VodDrawerMenuActivity extends AppCompatActivity
                 }
             });
 
+            buyButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View arg0) {
+                    System.out.println("Klikniety KUP!!! pozycja nr + " + position);
+
+                }});
+
+
+
+            if (videoCategory.equals("Free")){
+                buyButton.setVisibility(View.INVISIBLE);
+                buyButton.setBackgroundColor(Color.GREEN);
+            }
+            else
+            {
+
+                buyButton.setClickable(false);
+                buyButton.setBackgroundColor(Color.GRAY);
+
+            }
 
 
             // Return the completed view to render on screen
@@ -488,7 +427,6 @@ public class VodDrawerMenuActivity extends AppCompatActivity
             jsonVideo = jParserVideo.makeHttpRequest(url_getVideosData, "GET", params);
 
             try {
-
                 JSONArray json_array = jsonVideo.getJSONArray("Video");
                 Log.d("Msg", jsonVideo.getString("Video"));
 
@@ -508,6 +446,14 @@ public class VodDrawerMenuActivity extends AppCompatActivity
                 // TODO Auto-generated catch block
                 e.printStackTrace();
             }
+            catch (Exception e) {
+
+                e.printStackTrace();
+
+//                Toast.makeText(VodDrawerMenuActivity.this, "B³¹d podczas po³¹czenia z serwerem", Toast.LENGTH_LONG).show();
+
+            }
+
 
             return null;
         }
@@ -517,7 +463,8 @@ public class VodDrawerMenuActivity extends AppCompatActivity
         protected void onPreExecute() {
 
             super.onPreExecute();
-            System.out.println("pobranie filmow - ON PRE EXECUTE - DONE!!");
+            System.out.println("Rozpoczynamy pobieranie filmów z serwera");
+            findViewById(R.id.loadingPanel).setVisibility(View.VISIBLE);
 
 
 
@@ -528,9 +475,13 @@ public class VodDrawerMenuActivity extends AppCompatActivity
         protected void onPostExecute(String result) {
 
             super.onPostExecute(result);
-            System.out.println("pobranie filmow - ON PRE EXECUTE - DONE!!");
+            System.out.println("Filmy pobrane pomyœlnie z serwera!");
+            findViewById(R.id.loadingPanel).setVisibility(View.GONE);
 
-
+            // Create the adapter to convert the array to views
+            VideosAdapter adapter = new VideosAdapter(VodDrawerMenuActivity.this, videoList);
+            // Attach the adapter to a ListView
+            listView.setAdapter(adapter);
 
 
         }
@@ -717,20 +668,12 @@ public class VodDrawerMenuActivity extends AppCompatActivity
     }
 
     public void loadVideosFromServer(){
-
         //JSON array to ArrayList
         VideoDataReader vd = new VideoDataReader();
         vd.execute();
 
-        // Create the adapter to convert the array to views
-        VideosAdapter adapter = new VideosAdapter(this, videoList);
-          // Attach the adapter to a ListView
-        listView.setAdapter(adapter);
-
 
     }
-
-
 
 
 }
