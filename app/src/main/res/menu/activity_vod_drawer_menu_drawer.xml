@@ -2,34 +2,37 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
     <group android:checkableBehavior="single">
+
         <item
-            android:id="@+id/userAccount"
-            android:icon="@drawable/ic_menu_camera"
-            android:title="Konto użytkownika" />
+        android:id="@+id/userAccount"
+        android:icon="@drawable/ic_menu_camera"
+        android:title="Konto użytkownika" />
         <item
             android:id="@+id/accounts"
             android:icon="@drawable/ic_menu_gallery"
             android:title="Zalogowane konta" />
+        <item
+            android:id="@+id/logout"
+            android:icon="@drawable/ic_menu_gallery"
+            android:title="Wyloguj" />
+
       </group>
 
     <item android:title="Kategorie">
         <menu>
             <item
-                android:id="@+id/newMovies"
+                android:id="@+id/freeMovies"
                 android:icon="@drawable/ic_menu_share"
-                android:title="Nowości" />
+                android:title="Darmowe" />
             <item
-                android:id="@+id/comedyMovies"
+                android:id="@+id/natureMovies"
                 android:icon="@drawable/ic_menu_manage"
-                android:title="Komedia" />
+                android:title="Natura" />
             <item
-                android:id="@+id/horrorMovies"
+                android:id="@+id/cityMovies"
                 android:icon="@drawable/ic_menu_slideshow"
-                android:title="Horror" />
-            <item
-                android:id="@+id/documentMovies"
-                android:icon="@drawable/ic_menu_send"
-                android:title="Dokumentalne" />
+                android:title="Miasta" />
+
         </menu>
     </item>
 

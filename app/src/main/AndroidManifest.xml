@@ -57,7 +57,9 @@
         </activity>
         <activity
             android:name=".VideoViewActivity"
-            android:label="Video On Demand" />
+            android:label="Video On Demand"
+            android:screenOrientation="landscape"
+        />
 
 
         <!--
