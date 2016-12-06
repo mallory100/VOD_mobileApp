@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical"
-    android:layout_width="fill_parent"
-    android:layout_height="fill_parent"
-    android:background="#d6d6d6"
+    android:layout_width="wrap_content"
+    android:layout_height="match_parent"
+    android:background="@drawable/login_background"
     android:paddingLeft="17dp"
     android:paddingRight="17dp"
     android:id="@+id/loginActivity"
-    >
+    android:gravity="center">
 
     <EditText android:id="@+id/accountName"
         android:layout_width="match_parent"
@@ -16,7 +16,7 @@
         android:hint="Nazwa uzytkownika"
         android:inputType="textEmailAddress"
         android:padding="10dp"
-        />
+        android:textColorHint="#FFFFFFFF" />
 
     <EditText android:id="@+id/accountPassword"
         android:layout_width="match_parent"
@@ -25,27 +25,23 @@
         android:inputType="textPassword"
         android:hint="Haslo"
         android:padding="10dp"
-        />
+        android:textColorHint="#FFFFFFFF" />
 
     <Button android:id="@+id/submit"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
         android:text="Zaloguj"
-        android:padding="10dp"/>
+        android:padding="10dp"
+        android:background="#ffabb2b9"
+        android:layout_margin="10dp" />
 
     <Button android:id="@+id/signUp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:gravity="center"
         android:text="Dodaj nowe konto"
-        android:padding="10dp"/>
-
-    <Button
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Konta zalogowane:"
-        android:id="@+id/showAccountsButton"
-        android:layout_gravity="center_horizontal" />
+        android:padding="10dp"
+        android:background="#ffabb2b9"
+        android:gravity="center"
+        android:layout_margin="10dp" />
 
 </LinearLayout>
