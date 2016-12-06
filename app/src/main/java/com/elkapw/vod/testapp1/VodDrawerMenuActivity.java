@@ -2,6 +2,7 @@ package com.elkapw.vod.testapp1;
 
 import android.accounts.Account;
 import android.app.AlertDialog;
+import android.content.ClipData;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -52,6 +53,7 @@ public class VodDrawerMenuActivity extends AppCompatActivity
     JSONObject jsonVideo;
     VideoObject videoObject;
     boolean isUserLogged = false;
+    boolean isVideoBought = false;
     String videoCategory;
     ListView listView;
     private static String url_getVideosData = "http://192.168.0.14:5080/red56/AndroidVideosDataServlet";
@@ -59,6 +61,8 @@ public class VodDrawerMenuActivity extends AppCompatActivity
     Menu menu;
     Toolbar toolbar;
     Button buyButton,watchButton;
+    MenuItem userInfo;
+
 
   //  private static String url_getVideosData = "http://192.168.1.21:5080/red56/AndroidVideosDataServlet";
 
@@ -73,6 +77,12 @@ public class VodDrawerMenuActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
 
         videoCategory = "Free";
+
+        if (videoCategory.equals("Free")){
+            isVideoBought = true;
+        };
+
+
 
         //pobranie LOGINU zalogowanego uzytkownika
         if (savedInstanceState == null) {
@@ -152,13 +162,18 @@ public class VodDrawerMenuActivity extends AppCompatActivity
         navigationView.setNavigationItemSelectedListener(this);
 
         menu = navigationView.getMenu();
+
+        userInfo = this.menu.findItem(R.id.userInfo);
+
         // gdy uzytkownik jest zalogowany to Item w Menu zmienia sie na "Wyloguj"
         if (isUserLogged == true){
             this.menu.findItem(R.id.logout).setTitle("Wyloguj");
             System.out.println("czy zalogowany" + isUserLogged + "powinno zmienic na wyloguj");
+            userInfo.setTitle("Witaj " + currentAccountLogin);
         }
         if (isUserLogged == false){
 
+            userInfo.setTitle("Witaj niezalogowany!");
             this.menu.findItem(R.id.logout).setTitle("Zaloguj");
             System.out.println("czy zalogowany" + isUserLogged + "powinno zmienic na zaloguj");
 
@@ -179,7 +194,7 @@ public class VodDrawerMenuActivity extends AppCompatActivity
 
         TextView vodContentDescription = (TextView) findViewById(R.id.vodContentDescription);
         if (isUserLogged==true){
-            vodContentDescription.setText("Witaj u¿ytkowniku : " + currentAccountLogin + " " + mDescription);
+            vodContentDescription.setText("Witaj uÅ¼ytkowniku : " + currentAccountLogin + " " + mDescription);
         }
         else {
             vodContentDescription.setText(mDescription);
@@ -188,7 +203,7 @@ public class VodDrawerMenuActivity extends AppCompatActivity
 
     private void setVodCategoryDescription(){
         TextView vodCategoryDescription = (TextView) findViewById(R.id.vodCategoryDescription);
-        vodCategoryDescription.setText("Przegl¹dasz filmy z kategorii: "+ videoCategory);
+        vodCategoryDescription.setText("PrzeglÄ…dasz filmy z kategorii: "+ videoCategory);
     }
 
     @Override
@@ -204,7 +219,7 @@ public class VodDrawerMenuActivity extends AppCompatActivity
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.vod_drawer_menu, menu);
+      //  getMenuInflater().inflate(R.menu.vod_drawer_menu, menu);
         this.menu = menu;
         return true;
     }
@@ -230,9 +245,9 @@ public class VodDrawerMenuActivity extends AppCompatActivity
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
-        if (id == R.id.userAccount) {
-            // Handle the camera action
-        } else if (id == R.id.accounts) {
+        if (id == R.id.help) {
+            // HELP TODO
+        } else if (id == R.id.appSettings) {
 
             AccountObject accountObject = new AccountObject(this);
             Account[] acc = accountObject.returnAccountList(getString(R.string.accountTypePremium), this);
@@ -240,7 +255,7 @@ public class VodDrawerMenuActivity extends AppCompatActivity
             // BRAK KONT - popup Toast
             if( acc.length == 0 ) {
                 Log.e(null, "No accounts of type " + R.string.accountTypePremium + " found");
-                Toast.makeText(this, "Brak kont na urz¹dzeniu", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Brak kont na urzÄ…dzeniu", Toast.LENGTH_SHORT).show();
             }
 
             // ISTNIEJA KONTA - popup z mozliwoscia wyboru konta:
@@ -266,9 +281,11 @@ public class VodDrawerMenuActivity extends AppCompatActivity
                 videoCategory = "Free";
                 loadVideosFromServer();
                 setVodCategoryDescription();
-                setVodContentDescription("Witaj! Zaloguj sie by zobaczysz wszystkie materia³y!");
+                setVodContentDescription("Witaj! Zaloguj sie by zobaczysz wszystkie materiaÅ‚y!");
                 item.setTitle("Zaloguj");
-                Toast.makeText(this, "Pomyœlnie wylogowano", Toast.LENGTH_LONG).show();
+                userInfo.setTitle("Witaj niezalogowany!");
+                Toast.makeText(this, "PomyÅ›lnie wylogowano", Toast.LENGTH_LONG).show();
+
             }
         } else if (id == R.id.freeMovies) {
 
@@ -282,6 +299,7 @@ public class VodDrawerMenuActivity extends AppCompatActivity
                 videoCategory = "City";
                 loadVideosFromServer();
                 setVodCategoryDescription();
+                isVideoBought = false;
                             }
             else {
                 showNoPermissionPopup();
@@ -293,6 +311,8 @@ public class VodDrawerMenuActivity extends AppCompatActivity
                 videoCategory = "Nature";
                 loadVideosFromServer();
                 setVodCategoryDescription();
+                isVideoBought = true;
+
             }
             else {
                 showNoPermissionPopup();
@@ -374,14 +394,12 @@ public class VodDrawerMenuActivity extends AppCompatActivity
             videoName.setText(video.getVideoName());
             videoDescription.setText(video.getVideoDescription());
 
-
             watchButton.setClickable(true);
             watchButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View arg0) {
                     System.out.println("Klikniety ogladaj!!! pozycja nr " + position);
                     goToSpecificVideoContentActivity(video);
-
                 }
             });
 
@@ -394,16 +412,21 @@ public class VodDrawerMenuActivity extends AppCompatActivity
 
 
 
+            //W kategorii Free nie kupujemy filmow, sa one od razu dostepne
             if (videoCategory.equals("Free")){
                 buyButton.setVisibility(View.INVISIBLE);
-                buyButton.setBackgroundColor(Color.GREEN);
+                watchButton.setClickable(true);
             }
-            else
-            {
 
+            if (isVideoBought==true){
+                buyButton.setBackgroundColor(Color.WHITE);
                 buyButton.setClickable(false);
-                buyButton.setBackgroundColor(Color.GRAY);
+                buyButton.setText("Zakupiono");
 
+            }
+            else {
+                watchButton.setClickable(false);
+                watchButton.setBackgroundColor(Color.GRAY);
             }
 
 
@@ -439,7 +462,6 @@ public class VodDrawerMenuActivity extends AppCompatActivity
                     JSONObject video = json_array.getJSONObject(i);
                     videoObject = new VideoObject(video.getString("videoname"), video.getString("videourl"), video.getString("videodescription"));
                     videoList.add(videoObject);
-
                 }
 
             } catch (JSONException e) {
@@ -447,55 +469,34 @@ public class VodDrawerMenuActivity extends AppCompatActivity
                 e.printStackTrace();
             }
             catch (Exception e) {
-
                 e.printStackTrace();
-
-//                Toast.makeText(VodDrawerMenuActivity.this, "B³¹d podczas po³¹czenia z serwerem", Toast.LENGTH_LONG).show();
-
             }
-
 
             return null;
         }
-
 
         @Override
         protected void onPreExecute() {
 
             super.onPreExecute();
-            System.out.println("Rozpoczynamy pobieranie filmów z serwera");
+            System.out.println("Rozpoczynamy pobieranie filmÃ³w z serwera");
             findViewById(R.id.loadingPanel).setVisibility(View.VISIBLE);
-
-
-
         }
-
 
         @Override
         protected void onPostExecute(String result) {
 
             super.onPostExecute(result);
-            System.out.println("Filmy pobrane pomyœlnie z serwera!");
+            System.out.println("Filmy pobrane pomyÅ›lnie z serwera!");
             findViewById(R.id.loadingPanel).setVisibility(View.GONE);
 
-            // Create the adapter to convert the array to views
+            // Create the adapter to convert the array to views and attach the adapter to a ListView
             VideosAdapter adapter = new VideosAdapter(VodDrawerMenuActivity.this, videoList);
-            // Attach the adapter to a ListView
             listView.setAdapter(adapter);
-
-
         }
-
     }
 
-
-
-
-
-
     private void selectAccountsPopup(Account[] acc){
-        View inflatedView = getLayoutInflater().inflate(R.layout.accounts_popup, null);
-        ListView listViewAccounts = (ListView) inflatedView.findViewById(R.id.listViewAccounts);
 
         final AccountObject accountObject = new AccountObject(this);
 
@@ -557,16 +558,11 @@ public class VodDrawerMenuActivity extends AppCompatActivity
     private void showNoPermissionPopup(){
 
         AlertDialog.Builder builder = new AlertDialog.Builder(VodDrawerMenuActivity.this);
-        builder.setTitle("BRAK DOSTÊPU!");
-        builder.setMessage("Zaloguj siê, aby zobaczyæ listê filmów");
+        builder.setTitle("BRAK DOSTÄ˜PU!");
+        builder.setMessage("Zaloguj siÄ™, aby zobaczyÄ‡ peÅ‚nÄ… listÄ™ filmÃ³w");
         builder.create();
         builder.show();
-
-
     }
-
-
-
 
     class ServerAuthLogin extends AsyncTask<String, String, String> {
         String s = null;
@@ -577,7 +573,6 @@ public class VodDrawerMenuActivity extends AppCompatActivity
         String accountLogin;
 
         private String url_login = "http://192.168.0.14:5080/red56/AndroidLoginServlet";
-
 
         @Override
         protected String doInBackground(String... args) {
@@ -599,8 +594,6 @@ public class VodDrawerMenuActivity extends AppCompatActivity
 
             super.onPreExecute();
             System.out.println("ServerAuth - ON PRE EXECUTE - DONE!!");
-
-
         }
 
         @Override
@@ -619,8 +612,8 @@ public class VodDrawerMenuActivity extends AppCompatActivity
 
                     System.out.println("ServerAuth - DoInBackground - FAIL!!");
                     Toast.makeText(VodDrawerMenuActivity.this, "Token jest nieaktualny", Toast.LENGTH_LONG).show();
-                    goToLoginAuthenticatorActivity(); //powrot do ekranu logowania
 
+                    goToLoginAuthenticatorActivity(); //powrot do ekranu logowania
 
                 }
 
@@ -630,15 +623,10 @@ public class VodDrawerMenuActivity extends AppCompatActivity
                 e.printStackTrace();
 
             }
-
-
             System.out.println("ServerAuth - ON POST EXECUTE - DONE!!");
 
         }
-
     }
-
-
 
     // Funkcje obslugujace przejscia miedzy Activity
     public void goToLoginAuthenticatorActivity() {
@@ -671,9 +659,13 @@ public class VodDrawerMenuActivity extends AppCompatActivity
         //JSON array to ArrayList
         VideoDataReader vd = new VideoDataReader();
         vd.execute();
-
-
     }
+
+    private void checkIfVideoIsBought(){
+
+    };
+
+
 
 
 }
