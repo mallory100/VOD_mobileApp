@@ -21,6 +21,7 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.PopupWindow;
+import android.widget.TextView;
 import android.widget.Toast;
 
 
@@ -49,7 +50,8 @@ public class LoginAuthenticatorActivity extends Activity {
     private AccountManager mAccountManager;
 
     EditText accountNameEditText, accountPassEditText; // pola na login i haslo
-    Button signIn, signUp, showAccounts; //przycisk signIn
+    Button signIn; //przycisk signIn
+    TextView signUp;
 
     JSONParser jParser = new JSONParser();
     JSONObject json;
@@ -64,6 +66,7 @@ public class LoginAuthenticatorActivity extends Activity {
     List<String> accountsArrayList, list;
     int accountID;
     Thread watek ;
+    String isUserLogged;
 
     /**
      * ATTENTION: This was auto-generated to implement the App Indexing API.
@@ -83,22 +86,9 @@ public class LoginAuthenticatorActivity extends Activity {
         mAccountManager = AccountManager.get(getBaseContext());
 
         //AUTHENTICATOR PART:
-       // mainLayout = new LinearLayout(this);
         mAccountType = getString(R.string.accountTypePremium);
         AccountManager mAccountManager = AccountManager.get(this);
         acc = mAccountManager.getAccountsByType(mAccountType);
-
-        // BRAK KONT - popup Toast
-        if( acc.length == 0 ) {
-            Log.e(null, "No accounts of type " + mAccountType + " found");
-            Toast.makeText(this, "No accounts", Toast.LENGTH_SHORT).show();
-        }
-
-       // ISTNIEJA KONTA - popup z mozliwoscia wyboru konta:
-        if (acc.length != 0) {
-
-            this.selectAccountsPopup();
-       }
 
         findViewsById();
         // PRZYCISK LOGOWANIA:
@@ -129,34 +119,14 @@ public class LoginAuthenticatorActivity extends Activity {
 
             }
         });
-
-        showAccounts.setOnClickListener(new View.OnClickListener() {
-
-            @Override
-            public void onClick(View arg0) {
-
-                selectAccountsPopup();
-
-
-            }
-        });
-
-
-
     }
-
-
-
 
     private void findViewsById() {
 
         accountNameEditText = (EditText) findViewById(R.id.accountName);
         accountPassEditText = (EditText) findViewById(R.id.accountPassword);
         signIn = (Button) findViewById(R.id.submit);
-        signUp = (Button) findViewById(R.id.signUp);
-        showAccounts = (Button) findViewById(R.id.showAccountsButton);
-
-
+        signUp = (TextView) findViewById(R.id.signUpTextView);
     }
 
     @Override
@@ -177,13 +147,6 @@ public class LoginAuthenticatorActivity extends Activity {
                 Uri.parse("android-app://com.elkapw.vod.testapp1/http/host/path")
         );
         AppIndex.AppIndexApi.start(client, viewAction);
-
-
-
-
-
-
-
     }
 
     @Override
@@ -238,23 +201,6 @@ public class LoginAuthenticatorActivity extends Activity {
            //setAccountAuthenticatorResult(intentAccount.getExtras());
            setResult(RESULT_OK, intentAccount);
 
-
-           /*
-
-        setAccountAuthenticatorResult(intent.getExtras());
-        mAccountManager.getAccounts();
-        setResult(RESULT_OK, intent);
-        finish();*/
-    }
-
-
-
-    public void goToVideoViewActivity() {
-
-        Intent videoViewWindow = new Intent(getApplicationContext(), VideoViewActivity.class);
-        videoViewWindow.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        startActivity(videoViewWindow);
-
     }
 
     public void goToLoginAuthenticatorActivity() {
@@ -263,23 +209,26 @@ public class LoginAuthenticatorActivity extends Activity {
         startActivity(authenticatorActivityWindow);
     }
 
-
     public void goToSignUpActivity() {
         Intent signUpActivityWindow = new Intent(getApplicationContext(), SignUpActivity.class);
         signUpActivityWindow.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         startActivity(signUpActivityWindow);
+    }
 
+    public void goToVodContentActivity(String currentAccountLogin){
+
+        Intent vodContent = new Intent(getApplicationContext(), VodDrawerMenuActivity.class);
+        vodContent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        vodContent.putExtra("Login", currentAccountLogin);
+        startActivity(vodContent);
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         // getMenuInflater().inflate(R.menu.menu_main, menu);
-
-
         return true;
     }
-
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -293,17 +242,10 @@ public class LoginAuthenticatorActivity extends Activity {
         return super.onOptionsItemSelected(item);
     }
 
-    public void goToVodContentActivity(){
-
-        Intent vodContent = new Intent(getApplicationContext(), VodDrawerMenuActivity.class);
-        vodContent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        startActivity(vodContent);
-    }
-
     // Popup wyświetlający aktualnie zalogowane konta dla aplikacji VOD na urzadzeniu
     private void selectAccountsPopup(){
-        View inflatedView = getLayoutInflater().inflate(R.layout.accounts_popup, null);
-        listViewAccounts = (ListView) inflatedView.findViewById(R.id.listViewAccounts);
+        //View inflatedView = getLayoutInflater().inflate(R.layout.accounts_popup, null);
+        //listViewAccounts = (ListView) inflatedView.findViewById(R.id.listViewAccounts);
 
         list = new ArrayList<String>() ;
 
@@ -341,14 +283,6 @@ public class LoginAuthenticatorActivity extends Activity {
 
                 ServerAuthLogin newRequestLogin = new ServerAuthLogin();
                 newRequestLogin.execute(username,currentUserToken);
-
-/*
-                ServerAuthentication newRequest = new ServerAuthentication();
-                newRequest.isUserLogged = true;
-                newRequest.setUserLogin(username);
-                newRequest.setUserToken(currentUserToken);
-                newRequest.execute();*/
-
 
                 System.out.println("STATUS REQUESTA " +newRequestLogin.getStatus());
 
@@ -395,8 +329,6 @@ public class LoginAuthenticatorActivity extends Activity {
             }
         });
                watek.start();
-
-
         }
 
 
@@ -443,8 +375,9 @@ public class LoginAuthenticatorActivity extends Activity {
                 //informacja zwrotna czy powodzenie
                 s = json.getString("info");
                 if (s.equals("success")) {
-                    System.out.println("ServerAuth - DoInBackground - SUCCESS!!");
-                    goToVodContentActivity();
+
+                    System.out.println("ServerAuth - DoInBackground - SUCCESS!! ZALOGOWANO: " + accountLogin);
+                    goToVodContentActivity(accountLogin);
                 } else {
 
                     System.out.println("ServerAuth - DoInBackground - FAIL!!");
@@ -465,7 +398,6 @@ public class LoginAuthenticatorActivity extends Activity {
             System.out.println("ServerAuth - ON POST EXECUTE - DONE!!");
 
         }
-
     }
 
 
@@ -514,7 +446,6 @@ public class LoginAuthenticatorActivity extends Activity {
                     if (s.equals("success")) {
 
                         System.out.println("ServerAuth RTL - DoInBackground - SUCCESS!!");
-                        goToVodContentActivity();
                         currentUserToken = accountToken;
 
                         data.putString(AccountManager.KEY_ACCOUNT_NAME, username);
@@ -525,7 +456,7 @@ public class LoginAuthenticatorActivity extends Activity {
                         final Intent res = new Intent();
                         res.putExtras(data);
                         finishLogin(res);
-                        goToVodContentActivity();
+                        goToVodContentActivity(username);
 
                     }
                     if (s.equals("fail")) {
