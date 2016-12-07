@@ -53,11 +53,12 @@ public class VodDrawerMenuActivity extends AppCompatActivity
     JSONObject jsonVideo;
     VideoObject videoObject;
     boolean isUserLogged = false;
-    boolean isVideoBought = false;
     String videoCategory;
     ListView listView;
     private static String url_getVideosData = "http://192.168.0.14:5080/red56/AndroidVideosDataServlet";
-    String currentAccountLogin;
+    private static String url_getAuthVideosData = "http://192.168.0.14:5080/red56/AndroidReturnVideosForUserServlet";
+
+    String currentAccountLogin, currentAccountToken;
     Menu menu;
     Toolbar toolbar;
     Button buyButton,watchButton;
@@ -78,12 +79,6 @@ public class VodDrawerMenuActivity extends AppCompatActivity
 
         videoCategory = "Free";
 
-        if (videoCategory.equals("Free")){
-            isVideoBought = true;
-        };
-
-
-
         //pobranie LOGINU zalogowanego uzytkownika
         if (savedInstanceState == null) {
             Bundle extras = getIntent().getExtras();
@@ -100,21 +95,7 @@ public class VodDrawerMenuActivity extends AppCompatActivity
         setContentView(R.layout.activity_vod_drawer_menu);
 
 
-        //Stworzenie ListView z filmami pobranymi z serwera
-        listView = (ListView) findViewById(R.id.listViewMovies);
-        listView.setFocusable(true);
-        videoList = new ArrayList<VideoObject>();
-        loadVideosFromServer();
 
-        // Listener Listview
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-              //  goToSpecificVideoContentActivity(position);
-            }
-
-        });
 
         //Stworzenie TOOLbara
         toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -151,11 +132,40 @@ public class VodDrawerMenuActivity extends AppCompatActivity
         // istnieje jedno konto wiec nim sie logujemy
         if (acc.length ==1 && isUserLogged !=true){
             currentAccountLogin = acc[0].name;
+            accountObject.getExistingAccountAuthToken(acc[0], "TOKEN", getBaseContext(), true);
+
+            while (accountObject.getThreadStatus() != Thread.State.TERMINATED) {
+                System.out.println("WATEK NIE ZOSTAL UKONCZONY = " + accountObject.getThreadStatus());
+                System.out.println("TOKEN Uzytkownika TO : " + accountObject.accountToken);
+                findViewById(R.id.loadingPanel).setVisibility(View.VISIBLE);
+            }
+
+           currentAccountToken = accountObject.accountToken;
+           findViewById(R.id.loadingPanel).setVisibility(View.INVISIBLE);
+            System.out.println("*****TOKEN : " + currentAccountToken);
+
         }
+
         // ustawienie flagi ze uzytkownik jest zalogowany
         if (currentAccountLogin != null){
             isUserLogged = true;
         }
+
+        //Stworzenie ListView z filmami pobranymi z serwera
+        listView = (ListView) findViewById(R.id.listViewMovies);
+        listView.setFocusable(true);
+        videoList = new ArrayList<VideoObject>();
+        loadVideosFromServer();
+
+        // Listener Listview
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                //  goToSpecificVideoContentActivity(position);
+            }
+
+        });
 
         //Stworzenie NavigationView
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
@@ -299,7 +309,6 @@ public class VodDrawerMenuActivity extends AppCompatActivity
                 videoCategory = "City";
                 loadVideosFromServer();
                 setVodCategoryDescription();
-                isVideoBought = false;
                             }
             else {
                 showNoPermissionPopup();
@@ -311,7 +320,6 @@ public class VodDrawerMenuActivity extends AppCompatActivity
                 videoCategory = "Nature";
                 loadVideosFromServer();
                 setVodCategoryDescription();
-                isVideoBought = true;
 
             }
             else {
@@ -418,15 +426,22 @@ public class VodDrawerMenuActivity extends AppCompatActivity
                 watchButton.setClickable(true);
             }
 
-            if (isVideoBought==true){
+            if (video.getIsBought()==true){
+                watchButton.setClickable(true);
+                watchButton.setBackgroundColor(Color.GREEN);
                 buyButton.setBackgroundColor(Color.WHITE);
                 buyButton.setClickable(false);
                 buyButton.setText("Zakupiono");
+
 
             }
             else {
                 watchButton.setClickable(false);
                 watchButton.setBackgroundColor(Color.GRAY);
+                buyButton.setBackgroundColor(Color.GREEN);
+                buyButton.setClickable(true);
+                buyButton.setText("Kup");
+
             }
 
 
@@ -434,67 +449,8 @@ public class VodDrawerMenuActivity extends AppCompatActivity
             return convertView;
         }
 
-
-
-
     }
 
-// POBRANIE LISTY FILMoW Z SERWERA
-    private class VideoDataReader extends AsyncTask<String, String, String> {
-        String s = null;
-
-        @Override
-        protected String doInBackground(String... args) {
-            List<NameValuePair> params = new ArrayList<NameValuePair>();
-           params.add(new BasicNameValuePair("category", videoCategory));
-            jsonVideo = jParserVideo.makeHttpRequest(url_getVideosData, "GET", params);
-
-            try {
-                JSONArray json_array = jsonVideo.getJSONArray("Video");
-                Log.d("Msg", jsonVideo.getString("Video"));
-
-                int size = json_array.length();
-                // videoList = new ArrayList<VideoObject>();
-
-                videoList.clear();
-
-                for (int i = 0; i < size; i++) {
-                    JSONObject video = json_array.getJSONObject(i);
-                    videoObject = new VideoObject(video.getString("videoname"), video.getString("videourl"), video.getString("videodescription"));
-                    videoList.add(videoObject);
-                }
-
-            } catch (JSONException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-            catch (Exception e) {
-                e.printStackTrace();
-            }
-
-            return null;
-        }
-
-        @Override
-        protected void onPreExecute() {
-
-            super.onPreExecute();
-            System.out.println("Rozpoczynamy pobieranie filmów z serwera");
-            findViewById(R.id.loadingPanel).setVisibility(View.VISIBLE);
-        }
-
-        @Override
-        protected void onPostExecute(String result) {
-
-            super.onPostExecute(result);
-            System.out.println("Filmy pobrane pomyślnie z serwera!");
-            findViewById(R.id.loadingPanel).setVisibility(View.GONE);
-
-            // Create the adapter to convert the array to views and attach the adapter to a ListView
-            VideosAdapter adapter = new VideosAdapter(VodDrawerMenuActivity.this, videoList);
-            listView.setAdapter(adapter);
-        }
-    }
 
     private void selectAccountsPopup(Account[] acc){
 
@@ -554,6 +510,7 @@ public class VodDrawerMenuActivity extends AppCompatActivity
         }, 1000L);
 
     }
+
 
     private void showNoPermissionPopup(){
 
@@ -657,7 +614,7 @@ public class VodDrawerMenuActivity extends AppCompatActivity
 
     public void loadVideosFromServer(){
         //JSON array to ArrayList
-        VideoDataReader vd = new VideoDataReader();
+        AuthVideoDataReader vd = new AuthVideoDataReader();
         vd.execute();
     }
 
@@ -665,6 +622,64 @@ public class VodDrawerMenuActivity extends AppCompatActivity
 
     };
 
+
+    // POBRANIE LISTY FILMoW z uwierzytelnieniem zalogowanego użytkownika
+    private class AuthVideoDataReader extends AsyncTask<String, String, String> {
+        String s = null;
+
+        @Override
+        protected String doInBackground(String... args) {
+            List<NameValuePair> params = new ArrayList<NameValuePair>();
+            params.add(new BasicNameValuePair("token", currentAccountToken));
+            params.add(new BasicNameValuePair("category", videoCategory));
+            jsonVideo = jParserVideo.makeHttpRequest(url_getAuthVideosData, "GET", params);
+
+            try {
+                JSONArray json_array = jsonVideo.getJSONArray("Video");
+                Log.d("Msg", jsonVideo.getString("Video"));
+
+                int size = json_array.length();
+                // videoList = new ArrayList<VideoObject>();
+
+                videoList.clear();
+
+                for (int i = 0; i < size; i++) {
+                    JSONObject video = json_array.getJSONObject(i);
+                    videoObject = new VideoObject(video.getString("videoname"), video.getString("videourl"), video.getString("videodescription"), video.getBoolean("isBought"), video.getInt("video_ID"));
+                    videoList.add(videoObject);
+                }
+
+            } catch (JSONException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+            catch (Exception e) {
+                e.printStackTrace();
+            }
+
+            return null;
+        }
+
+        @Override
+        protected void onPreExecute() {
+
+            super.onPreExecute();
+            System.out.println("Rozpoczynamy pobieranie filmów z serwera");
+            findViewById(R.id.loadingPanel).setVisibility(View.VISIBLE);
+        }
+
+        @Override
+        protected void onPostExecute(String result) {
+
+            super.onPostExecute(result);
+            System.out.println("Filmy pobrane pomyślnie z serwera!");
+            findViewById(R.id.loadingPanel).setVisibility(View.GONE);
+
+            // Create the adapter to convert the array to views and attach the adapter to a ListView
+            VideosAdapter adapter = new VideosAdapter(VodDrawerMenuActivity.this, videoList);
+            listView.setAdapter(adapter);
+        }
+    }
 
 
 
