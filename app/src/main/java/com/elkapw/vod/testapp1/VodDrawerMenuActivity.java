@@ -2,7 +2,6 @@ package com.elkapw.vod.testapp1;
 
 import android.accounts.Account;
 import android.app.AlertDialog;
-import android.content.ClipData;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -55,8 +54,17 @@ public class VodDrawerMenuActivity extends AppCompatActivity
     boolean isUserLogged = false;
     String videoCategory;
     ListView listView;
-    private static String url_getVideosData = "http://192.168.0.14:5080/red56/AndroidVideosDataServlet";
-    private static String url_getAuthVideosData = "http://192.168.0.14:5080/red56/AndroidReturnVideosForUserServlet";
+    ArrayList<String> categoryList;
+
+    //  private static String url_getVideosData = "http://192.168.0.14:5080/red56/AndroidVideosDataServlet";
+   // private static String url_getAuthVideosData = "http://192.168.0.14:5080/red56/AndroidReturnVideosForUserServlet";
+   // private static String url_getBuyVideo = "http://192.168.0.14:5080/red56/AndroidBuyVideoServlet";
+
+
+    private static String url_getAuthVideosData = "http://192.168.0.14:8080/VOD_servlet/AndroidReturnVideosForUserServlet";
+    private static String url_getBuyVideo = "http://192.168.0.14:8080/VOD_servlet/AndroidBuyVideoServlet";
+    private static String url_getVideosCategory = "http://192.168.0.14:8080/VOD_servlet/AndroidReturnListOfVideoCategoriesServlet";
+
 
     String currentAccountLogin, currentAccountToken;
     Menu menu;
@@ -151,6 +159,9 @@ public class VodDrawerMenuActivity extends AppCompatActivity
             isUserLogged = true;
         }
 
+
+
+
         //Stworzenie ListView z filmami pobranymi z serwera
         listView = (ListView) findViewById(R.id.listViewMovies);
         listView.setFocusable(true);
@@ -188,9 +199,19 @@ public class VodDrawerMenuActivity extends AppCompatActivity
             System.out.println("czy zalogowany" + isUserLogged + "powinno zmienic na zaloguj");
 
         }
-
         setVodCategoryDescription();
         setVodContentDescription(" ");
+
+
+        //pobranie kategorii filmów z serwera:
+
+
+        menu.add(R.id.categoryMenu, 0, 0, "OH111O");
+        menu.add(R.id.categoryMenu, 0, 0, "OH221O");
+        returnCategories();
+
+
+
 
         System.out.println("Aktualnie zalogowany: " + currentAccountLogin);
 
@@ -230,7 +251,25 @@ public class VodDrawerMenuActivity extends AppCompatActivity
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
       //  getMenuInflater().inflate(R.menu.vod_drawer_menu, menu);
-        this.menu = menu;
+
+        super.onCreateOptionsMenu(menu);
+
+   //     this.menu = menu;
+
+        System.out.println("Wywowane ONCREATEOPTIONSMENU");
+
+        if (categoryList!=null) {
+            // ************* TEST\1111
+            for (int i = 0; i < categoryList.size(); i++) {
+                this.menu.add(R.id.categoryMenu, 0, 0, categoryList.get(i));
+                System.out.println(categoryList.get(i));
+            }
+        }
+
+        this.menu.add(R.id.categoryMenu, 0, 0, "OncreateMenu");
+
+
+
         return true;
     }
 
@@ -256,7 +295,8 @@ public class VodDrawerMenuActivity extends AppCompatActivity
         int id = item.getItemId();
 
         if (id == R.id.help) {
-            // HELP TODO
+
+
         } else if (id == R.id.appSettings) {
 
             AccountObject accountObject = new AccountObject(this);
@@ -415,7 +455,7 @@ public class VodDrawerMenuActivity extends AppCompatActivity
                 @Override
                 public void onClick(View arg0) {
                     System.out.println("Klikniety KUP!!! pozycja nr + " + position);
-
+                    buyVideos(Integer.toString(video.getVideoID()));
                 }});
 
 
@@ -432,9 +472,8 @@ public class VodDrawerMenuActivity extends AppCompatActivity
                 buyButton.setBackgroundColor(Color.WHITE);
                 buyButton.setClickable(false);
                 buyButton.setText("Zakupiono");
-
-
             }
+
             else {
                 watchButton.setClickable(false);
                 watchButton.setBackgroundColor(Color.GRAY);
@@ -529,7 +568,7 @@ public class VodDrawerMenuActivity extends AppCompatActivity
         String accountToken;
         String accountLogin;
 
-        private String url_login = "http://192.168.0.14:5080/red56/AndroidLoginServlet";
+        private String url_login = "http://192.168.0.14:8080/red56/AndroidLoginServlet";
 
         @Override
         protected String doInBackground(String... args) {
@@ -618,9 +657,16 @@ public class VodDrawerMenuActivity extends AppCompatActivity
         vd.execute();
     }
 
-    private void checkIfVideoIsBought(){
+    private void buyVideos(String mVideo_Id){
+        PremiumVideoBuyer request = new PremiumVideoBuyer();
+        request.execute(mVideo_Id);
 
     };
+
+    private void returnCategories(){
+        VideoCategoryReader request = new VideoCategoryReader();
+        request.execute();
+    }
 
 
     // POBRANIE LISTY FILMoW z uwierzytelnieniem zalogowanego użytkownika
@@ -681,6 +727,129 @@ public class VodDrawerMenuActivity extends AppCompatActivity
         }
     }
 
+
+    // ZAKUP FILMU
+    private class PremiumVideoBuyer extends AsyncTask<String, String, String> {
+
+        String s = null;
+        JSONParser jParser = new JSONParser();
+        JSONObject json;
+        String videoID;
+
+        @Override
+        protected String doInBackground(String... args) {
+
+            videoID = args[0];
+            List<NameValuePair> params = new ArrayList<NameValuePair>();
+            params.add(new BasicNameValuePair("login", currentAccountLogin));
+            params.add(new BasicNameValuePair("videoID", videoID));
+            json = jParser.makeHttpRequest(url_getBuyVideo, "GET", params);
+
+           return null;
+        }
+
+        @Override
+        protected void onPreExecute() {
+
+            super.onPreExecute();
+            System.out.println("Rozpoczynamy zakup filmu z serwera");
+            findViewById(R.id.loadingPanel).setVisibility(View.VISIBLE);
+        }
+
+        @Override
+        protected void onPostExecute(String result) {
+
+            super.onPostExecute(result);
+            try {
+                //informacja zwrotna czy powodzenie
+                s = json.getString("info");
+                if (s.equals("success")) {
+
+                    System.out.println("FILM pomyslnie zakupiony");
+                    loadVideosFromServer();
+                } else {
+
+                    System.out.println("Blad podczas zakupu filmu");
+                }
+
+            } catch (JSONException e) {
+                // TODO Auto-generated catch block
+
+                e.printStackTrace();
+
+            }
+        }
+    }
+
+
+
+    // POBRANIE Kategorii filmow
+    private class VideoCategoryReader extends AsyncTask<String, String, String> {
+        String s = null;
+        JSONObject jsonCategory = new JSONObject();
+
+        @Override
+        protected String doInBackground(String... args) {
+
+            try {
+                List<NameValuePair> params = new ArrayList<NameValuePair>();
+                params.add(new BasicNameValuePair("videoID", "ok"));
+                jsonCategory = jParserVideo.makeHttpRequest(url_getVideosCategory, "GET", params);
+            }
+
+            catch (Exception e) {
+                e.printStackTrace();
+            }
+
+            return null;
+        }
+
+        @Override
+        protected void onPreExecute() {
+
+            super.onPreExecute();
+            System.out.println("Rozpoczynamy pobieranie kategorii filmow z serwera");
+            findViewById(R.id.loadingPanel).setVisibility(View.VISIBLE);
+        }
+
+        @Override
+        protected void onPostExecute(String result) {
+            //informacja zwrotna czy powodzenie
+            System.out.println("Json z kategoriami to " + jsonCategory);
+            super.onPostExecute(result);
+            findViewById(R.id.loadingPanel).setVisibility(View.GONE);
+
+
+            try {
+
+                categoryList = new ArrayList<String>();
+
+
+                JSONArray json_array = jsonCategory.getJSONArray("Category");
+                    for (int i = 0 ;i < json_array.length(); i++) {
+                        JSONObject category = json_array.getJSONObject(i);
+                        String categoryName = category.getString("category");
+                        categoryList.add(categoryName);
+                        System.out.println(categoryList);
+                    }
+
+            }
+            catch (JSONException e) {
+                // TODO Auto-generated catch block
+
+                e.printStackTrace();
+
+            }
+
+
+
+
+            VodDrawerMenuActivity.this.invalidateOptionsMenu();
+            System.out.println("SUCCESS - Pobrano kategorie!");
+
+
+        }
+    }
 
 
 }
