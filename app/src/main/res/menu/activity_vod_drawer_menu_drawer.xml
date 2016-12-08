@@ -1,25 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <group android:checkableBehavior="single">
+    <item android:title="Użytkownik">
+        <menu>
+        <item
+            android:id="@+id/userInfo"
+            android:title="Witaj niezalogowany!" />
 
-        <item
-        android:id="@+id/userAccount"
-        android:icon="@drawable/ic_menu_camera"
-        android:title="Konto użytkownika" />
-        <item
-            android:id="@+id/accounts"
-            android:icon="@drawable/ic_menu_gallery"
-            android:title="Zalogowane konta" />
-        <item
-            android:id="@+id/logout"
-            android:icon="@drawable/ic_menu_gallery"
-            android:title="Wyloguj" />
+        </menu>
 
-      </group>
+    </item>
+
 
     <item android:title="Kategorie">
         <menu>
+
             <item
                 android:id="@+id/freeMovies"
                 android:icon="@drawable/ic_menu_share"
@@ -35,5 +30,25 @@
 
         </menu>
     </item>
+
+    <group android:checkableBehavior="single">
+
+        <item
+            android:id="@+id/logout"
+            android:icon="@drawable/ic_menu_gallery"
+            android:title="Wyloguj" />
+        <item
+            android:id="@+id/appSettings"
+            android:icon="@drawable/ic_menu_camera"
+            android:title="Ustawienia" />
+        <item
+            android:id="@+id/help"
+            android:icon="@drawable/ic_menu_gallery"
+            android:title="Pomoc" />
+      </group>
+
+
+
+
 
 </menu>
