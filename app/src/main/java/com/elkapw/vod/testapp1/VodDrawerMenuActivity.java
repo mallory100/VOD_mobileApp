@@ -54,26 +54,18 @@ public class VodDrawerMenuActivity extends AppCompatActivity
     boolean isUserLogged = false;
     String videoCategory;
     ListView listView;
-    ArrayList<String> categoryList;
-
-    //  private static String url_getVideosData = "http://192.168.0.14:5080/red56/AndroidVideosDataServlet";
-   // private static String url_getAuthVideosData = "http://192.168.0.14:5080/red56/AndroidReturnVideosForUserServlet";
-   // private static String url_getBuyVideo = "http://192.168.0.14:5080/red56/AndroidBuyVideoServlet";
-
+    ArrayList<CategoryObject> categoryList;
+    int currentCategoryID;
 
     private static String url_getAuthVideosData = "http://192.168.0.14:8080/VOD_servlet/AndroidReturnVideosForUserServlet";
     private static String url_getBuyVideo = "http://192.168.0.14:8080/VOD_servlet/AndroidBuyVideoServlet";
     private static String url_getVideosCategory = "http://192.168.0.14:8080/VOD_servlet/AndroidReturnListOfVideoCategoriesServlet";
-
 
     String currentAccountLogin, currentAccountToken;
     Menu menu;
     Toolbar toolbar;
     Button buyButton,watchButton;
     MenuItem userInfo;
-
-
-  //  private static String url_getVideosData = "http://192.168.1.21:5080/red56/AndroidVideosDataServlet";
 
     /**
      * ATTENTION: This was auto-generated to implement the App Indexing API.
@@ -86,6 +78,7 @@ public class VodDrawerMenuActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
 
         videoCategory = "Free";
+        currentCategoryID = 1;
 
         //pobranie LOGINU zalogowanego uzytkownika
         if (savedInstanceState == null) {
@@ -101,8 +94,6 @@ public class VodDrawerMenuActivity extends AppCompatActivity
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_vod_drawer_menu);
-
-
 
 
         //Stworzenie TOOLbara
@@ -125,7 +116,6 @@ public class VodDrawerMenuActivity extends AppCompatActivity
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawer.setDrawerListener(toggle);
         toggle.syncState();
-
 
 
         // PRZY uruchomieniu wyswietlamy zalogowane konta:
@@ -158,8 +148,6 @@ public class VodDrawerMenuActivity extends AppCompatActivity
         if (currentAccountLogin != null){
             isUserLogged = true;
         }
-
-
 
 
         //Stworzenie ListView z filmami pobranymi z serwera
@@ -204,14 +192,7 @@ public class VodDrawerMenuActivity extends AppCompatActivity
 
 
         //pobranie kategorii filmów z serwera:
-
-
-        menu.add(R.id.categoryMenu, 0, 0, "OH111O");
-        menu.add(R.id.categoryMenu, 0, 0, "OH221O");
         returnCategories();
-
-
-
 
         System.out.println("Aktualnie zalogowany: " + currentAccountLogin);
 
@@ -254,19 +235,27 @@ public class VodDrawerMenuActivity extends AppCompatActivity
 
         super.onCreateOptionsMenu(menu);
 
-   //     this.menu = menu;
+   //      this.menu = menu;
 
         System.out.println("Wywowane ONCREATEOPTIONSMENU");
 
-        if (categoryList!=null) {
+        final ArrayList<MenuItem> menuItemList = new ArrayList<MenuItem>();
+        if (categoryList!= null) {
             // ************* TEST\1111
             for (int i = 0; i < categoryList.size(); i++) {
-                this.menu.add(R.id.categoryMenu, 0, 0, categoryList.get(i));
-                System.out.println(categoryList.get(i));
-            }
-        }
+                String currentID = "cat" + i;
+                int resId = getResources().getIdentifier(currentID,"id", "com.elkapw.vod.testapp1");
+                System.out.println(currentID);
+                menuItemList.add(this.menu.add(R.id.categoryMenu, resId, 0, categoryList.get(i).getCategoryName()));
+                System.out.println("Pobrana nazwa kategorii to:" + categoryList.get(i));
+                //menuItemList.get(i).setOnMenuItemClickListener(menuItemListener);
+            };
+        };
 
-        this.menu.add(R.id.categoryMenu, 0, 0, "OncreateMenu");
+        //this.menu.add(R.id.categoryMenu, 0, 0, "OncreateMenu");
+
+        System.out.println(menuItemList);
+
 
 
 
@@ -292,7 +281,28 @@ public class VodDrawerMenuActivity extends AppCompatActivity
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
         // Handle navigation view item clicks here.
+
         int id = item.getItemId();
+
+        if (id == R.id.cat0 || id == R.id.cat1 || id == R.id.cat2 || id == R.id.cat3 || id == R.id.cat4
+                || id == R.id.cat5 || id == R.id.cat6|| id == R.id.cat7|| id == R.id.cat8|| id == R.id.cat9){
+
+            videoCategory = item.getTitle().toString();
+
+            for (int i=0; i<categoryList.size();i++){
+
+                if (videoCategory.equals(categoryList.get(i).getCategoryName())){
+                    currentCategoryID =categoryList.get(i).getCategoryID();
+                }
+
+            }
+
+            System.out.println("kliknieta kategoria to " + currentCategoryID);
+            loadVideosFromServer();
+
+        }
+
+
 
         if (id == R.id.help) {
 
@@ -673,11 +683,12 @@ public class VodDrawerMenuActivity extends AppCompatActivity
     private class AuthVideoDataReader extends AsyncTask<String, String, String> {
         String s = null;
 
+        String category = String.valueOf(currentCategoryID);
         @Override
         protected String doInBackground(String... args) {
             List<NameValuePair> params = new ArrayList<NameValuePair>();
             params.add(new BasicNameValuePair("token", currentAccountToken));
-            params.add(new BasicNameValuePair("category", videoCategory));
+            params.add(new BasicNameValuePair("category", category));
             jsonVideo = jParserVideo.makeHttpRequest(url_getAuthVideosData, "GET", params);
 
             try {
@@ -822,17 +833,16 @@ public class VodDrawerMenuActivity extends AppCompatActivity
 
             try {
 
-                categoryList = new ArrayList<String>();
+                categoryList = new ArrayList<CategoryObject>();
 
 
                 JSONArray json_array = jsonCategory.getJSONArray("Category");
+                System.out.println(json_array);
                     for (int i = 0 ;i < json_array.length(); i++) {
                         JSONObject category = json_array.getJSONObject(i);
-                        String categoryName = category.getString("category");
-                        categoryList.add(categoryName);
+                        categoryList.add(i, new CategoryObject(category.getInt("category"),category.getString("categoryname"),category.getString("categorydescription")));
                         System.out.println(categoryList);
                     }
-
             }
             catch (JSONException e) {
                 // TODO Auto-generated catch block
