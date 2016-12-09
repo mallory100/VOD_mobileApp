@@ -199,7 +199,7 @@ public class VodDrawerMenuActivity extends AppCompatActivity
 
         TextView vodContentDescription = (TextView) findViewById(R.id.vodContentDescription);
         if (isUserLogged==true){
-            vodContentDescription.setText("Zalogowany" + mDescription);
+            vodContentDescription.setText("Opis kategorii: " + mDescription);
         }
         else {
             vodContentDescription.setText(mDescription);
@@ -208,7 +208,7 @@ public class VodDrawerMenuActivity extends AppCompatActivity
 
     private void setVodCategoryDescription(String mCategoryDescription){
         TextView vodCategoryDescription = (TextView) findViewById(R.id.vodCategoryDescription);
-        vodCategoryDescription.setText(mCategoryDescription);
+        vodCategoryDescription.setText("Aktualna kategoria to: " + mCategoryDescription);
 
     }
 
@@ -229,25 +229,24 @@ public class VodDrawerMenuActivity extends AppCompatActivity
 
         super.onCreateOptionsMenu(menu);
 
-   //      this.menu = menu;
 
-        System.out.println("Wywowane ONCREATEOPTIONSMENU");
+        System.out.println("Wywolano onCreateOptionsMenu");
 
         final ArrayList<MenuItem> menuItemList = new ArrayList<MenuItem>();
         if (categoryList!= null) {
-            // ************* TEST\1111
-            for (int i = 0; i < categoryList.size(); i++) {
+             for (int i = 0; i < categoryList.size(); i++) {
                 String currentID = "cat" + i;
                 int resId = getResources().getIdentifier(currentID,"id", "com.elkapw.vod.testapp1");
-                menuItemList.add(this.menu.add(R.id.categoryMenu, resId, 0, categoryList.get(i).getCategoryName()));
-                System.out.println("Pobrana nazwa kategorii to:" + categoryList.get(i));
-                //menuItemList.get(i).setOnMenuItemClickListener(menuItemListener);
+                menuItemList.add(this.menu.add(0, resId, 20, categoryList.get(i).getCategoryName()));
+                System.out.println("Pobrana nazwa kategorii to: " + categoryList.get(i));
             };
 
+            // kategoria darmowa ma ID 1
             if (currentCategoryID==1){
                 setVodCategoryDescription(categoryList.get(0).getCategoryName());
                 setVodContentDescription(categoryList.get(0).getCategoryDescription());
             }
+
         }
 
         System.out.println(menuItemList);
