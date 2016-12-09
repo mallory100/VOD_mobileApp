@@ -52,7 +52,6 @@ public class VodDrawerMenuActivity extends AppCompatActivity
     JSONObject jsonVideo;
     VideoObject videoObject;
     boolean isUserLogged = false;
-    String videoCategory;
     ListView listView;
     ArrayList<CategoryObject> categoryList;
     int currentCategoryID;
@@ -77,7 +76,6 @@ public class VodDrawerMenuActivity extends AppCompatActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
-        videoCategory = "Free";
         currentCategoryID = 1;
 
         //pobranie LOGINU zalogowanego uzytkownika
@@ -177,19 +175,14 @@ public class VodDrawerMenuActivity extends AppCompatActivity
         // gdy uzytkownik jest zalogowany to Item w Menu zmienia sie na "Wyloguj"
         if (isUserLogged == true){
             this.menu.findItem(R.id.logout).setTitle("Wyloguj");
-            System.out.println("czy zalogowany" + isUserLogged + "powinno zmienic na wyloguj");
             userInfo.setTitle("Witaj " + currentAccountLogin);
         }
         if (isUserLogged == false){
 
             userInfo.setTitle("Witaj niezalogowany!");
             this.menu.findItem(R.id.logout).setTitle("Zaloguj");
-            System.out.println("czy zalogowany" + isUserLogged + "powinno zmienic na zaloguj");
 
         }
-        setVodCategoryDescription();
-        setVodContentDescription(" ");
-
 
         //pobranie kategorii filmów z serwera:
         returnCategories();
@@ -206,16 +199,17 @@ public class VodDrawerMenuActivity extends AppCompatActivity
 
         TextView vodContentDescription = (TextView) findViewById(R.id.vodContentDescription);
         if (isUserLogged==true){
-            vodContentDescription.setText("Witaj użytkowniku : " + currentAccountLogin + " " + mDescription);
+            vodContentDescription.setText("Zalogowany" + mDescription);
         }
         else {
             vodContentDescription.setText(mDescription);
         }
     }
 
-    private void setVodCategoryDescription(){
+    private void setVodCategoryDescription(String mCategoryDescription){
         TextView vodCategoryDescription = (TextView) findViewById(R.id.vodCategoryDescription);
-        vodCategoryDescription.setText("Przeglądasz filmy z kategorii: "+ videoCategory);
+        vodCategoryDescription.setText(mCategoryDescription);
+
     }
 
     @Override
@@ -245,19 +239,18 @@ public class VodDrawerMenuActivity extends AppCompatActivity
             for (int i = 0; i < categoryList.size(); i++) {
                 String currentID = "cat" + i;
                 int resId = getResources().getIdentifier(currentID,"id", "com.elkapw.vod.testapp1");
-                System.out.println(currentID);
                 menuItemList.add(this.menu.add(R.id.categoryMenu, resId, 0, categoryList.get(i).getCategoryName()));
                 System.out.println("Pobrana nazwa kategorii to:" + categoryList.get(i));
                 //menuItemList.get(i).setOnMenuItemClickListener(menuItemListener);
             };
-        };
 
-        //this.menu.add(R.id.categoryMenu, 0, 0, "OncreateMenu");
+            if (currentCategoryID==1){
+                setVodCategoryDescription(categoryList.get(0).getCategoryName());
+                setVodContentDescription(categoryList.get(0).getCategoryDescription());
+            }
+        }
 
         System.out.println(menuItemList);
-
-
-
 
         return true;
     }
@@ -284,25 +277,34 @@ public class VodDrawerMenuActivity extends AppCompatActivity
 
         int id = item.getItemId();
 
+
+    // obsluga dynamicznie zaladowanych kategorii filmow z serwera
         if (id == R.id.cat0 || id == R.id.cat1 || id == R.id.cat2 || id == R.id.cat3 || id == R.id.cat4
                 || id == R.id.cat5 || id == R.id.cat6|| id == R.id.cat7|| id == R.id.cat8|| id == R.id.cat9){
 
-            videoCategory = item.getTitle().toString();
+            String videoCategory = item.getTitle().toString();
+            CategoryObject categoryObject = new CategoryObject();
 
             for (int i=0; i<categoryList.size();i++){
-
                 if (videoCategory.equals(categoryList.get(i).getCategoryName())){
-                    currentCategoryID =categoryList.get(i).getCategoryID();
+                    categoryObject = categoryList.get(i);
                 }
-
             }
-
+            currentCategoryID = categoryObject.getCategoryID();
             System.out.println("kliknieta kategoria to " + currentCategoryID);
-            loadVideosFromServer();
 
+
+            if (isUserLogged==true) {
+                loadVideosFromServer();
+                setVodCategoryDescription(categoryObject.getCategoryName());
+                setVodContentDescription(categoryObject.getCategoryDescription());
+            }
+            else {
+                if (currentCategoryID!=1){
+                    showNoPermissionPopup();
+                }
+            }
         }
-
-
 
         if (id == R.id.help) {
 
@@ -338,42 +340,14 @@ public class VodDrawerMenuActivity extends AppCompatActivity
                 isUserLogged = false;
                 AccountObject accountObject = new AccountObject(this);
                 accountObject.removeAccount(this);
-                videoCategory = "Free";
+                currentCategoryID = 1;
                 loadVideosFromServer();
-                setVodCategoryDescription();
+                setVodCategoryDescription("PHIII");
                 setVodContentDescription("Witaj! Zaloguj sie by zobaczysz wszystkie materiały!");
                 item.setTitle("Zaloguj");
                 userInfo.setTitle("Witaj niezalogowany!");
                 Toast.makeText(this, "Pomyślnie wylogowano", Toast.LENGTH_LONG).show();
 
-            }
-        } else if (id == R.id.freeMovies) {
-
-            videoCategory = "Free";
-            loadVideosFromServer();
-            setVodCategoryDescription();
-
-        } else if (id == R.id.cityMovies) {
-
-            if (isUserLogged==true) {
-                videoCategory = "City";
-                loadVideosFromServer();
-                setVodCategoryDescription();
-                            }
-            else {
-                showNoPermissionPopup();
-            }
-
-        } else if (id == R.id.natureMovies) {
-
-            if (isUserLogged==true) {
-                videoCategory = "Nature";
-                loadVideosFromServer();
-                setVodCategoryDescription();
-
-            }
-            else {
-                showNoPermissionPopup();
             }
         }
 
@@ -471,7 +445,7 @@ public class VodDrawerMenuActivity extends AppCompatActivity
 
 
             //W kategorii Free nie kupujemy filmow, sa one od razu dostepne
-            if (videoCategory.equals("Free")){
+            if (currentCategoryID ==1){
                 buyButton.setVisibility(View.INVISIBLE);
                 watchButton.setClickable(true);
             }
