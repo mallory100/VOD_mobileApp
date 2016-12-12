@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <item android:title="Użytkownik">
+    <item android:title="Użytkownik"
+        android:orderInCategory="10">
+        >
         <menu>
         <item
             android:id="@+id/userInfo"
@@ -11,42 +13,43 @@
 
     </item>
 
+    <item android:title="Kategorie"
+        android:id="@+id/categoryMenu"
+        android:orderInCategory="20"
+        >
 
-    <item android:title="Kategorie">
+
+    <menu>
+        <item
+            android:title="Wybierz kategorię:" />
+
+
+</menu>
+    </item>
+
+
+
+
+    <item android:title="Aplikacja"
+        android:orderInCategory="100">
+
         <menu>
 
             <item
-                android:id="@+id/freeMovies"
-                android:icon="@drawable/ic_menu_share"
-                android:title="Darmowe" />
+                android:id="@+id/logout"
+                android:icon="@drawable/ic_menu_gallery"
+                android:title="Wyloguj" />
             <item
-                android:id="@+id/natureMovies"
-                android:icon="@drawable/ic_menu_manage"
-                android:title="Natura" />
+                android:id="@+id/appSettings"
+                android:icon="@drawable/ic_menu_camera"
+                android:title="Ustawienia" />
             <item
-                android:id="@+id/cityMovies"
-                android:icon="@drawable/ic_menu_slideshow"
-                android:title="Miasta" />
+                android:id="@+id/help"
+                android:icon="@drawable/ic_menu_gallery"
+                android:title="Pomoc" />
 
         </menu>
     </item>
-
-    <group android:checkableBehavior="single">
-
-        <item
-            android:id="@+id/logout"
-            android:icon="@drawable/ic_menu_gallery"
-            android:title="Wyloguj" />
-        <item
-            android:id="@+id/appSettings"
-            android:icon="@drawable/ic_menu_camera"
-            android:title="Ustawienia" />
-        <item
-            android:id="@+id/help"
-            android:icon="@drawable/ic_menu_gallery"
-            android:title="Pomoc" />
-      </group>
-
 
 
 

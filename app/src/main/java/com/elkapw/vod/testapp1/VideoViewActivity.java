@@ -13,8 +13,9 @@ import java.util.ArrayList;
 
 public class VideoViewActivity extends Activity {
 
-    TextView videoDescription;
+    //TextView videoDescription;
     protected VideoView videoView;
+    protected String baseURL = "http://192.168.0.14:8080/VOD_servlet";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -25,16 +26,17 @@ public class VideoViewActivity extends Activity {
 
 
         // OBSLUGA WYSWIETLENIA POJEDYNCZEGO FILMIKU Z SERWERA
-        videoView = (VideoView) findViewById(R.id.videoView1); //przypisanie do elementu layoutu
-        videoDescription = (TextView) findViewById(R.id.videoDescription);
+        videoView = (VideoView) findViewById(R.id.videoView); //przypisanie do elementu layoutu
+       // videoDescription = (TextView) findViewById(R.id.videoDescription);
 
 
         videoView.setMediaController(new MediaController(this));
-        videoDescription.setText(videoToDisplay.getVideoDescription());
+      //  videoDescription.setText(videoToDisplay.getVideoDescription());
         // http://localhost:5080/red56/movies/video2.mp4
 
       //  String videoUri = videoToDisplay.get(0).getVideoURL();
-        String uri = videoToDisplay.getVideoURL();
+        String uri = baseURL + videoToDisplay.getVideoURL();
+
 
   //      String uri = "http://192.168.0.14:5080/red56/movies/video2.mp4"; //loklne
        // String uri = "http://192.168.1.21:5080/red56/movies/video2.mp4"; // lokalne wideo
@@ -44,6 +46,8 @@ public class VideoViewActivity extends Activity {
         videoView.setVideoURI(Uri.parse(uri));
         videoView.requestFocus();
         videoView.start();
+
+
 
     }
 

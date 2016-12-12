@@ -37,7 +37,10 @@ public class SignUpActivity extends AppCompatActivity {
 
     String accountName, accountPassword, accountToken;
 
-    private static String url_login = "http://192.168.0.14:5080/red56/AndroidCreateAccountServlet";
+  //  private static String url_login = "http://192.168.0.14:5080/red56/AndroidCreateAccountServlet";
+    private static String url_login = "http://192.168.0.14:8080/VOD_servlet/AndroidCreateAccountServlet";
+
+
 
     JSONParser jParser = new JSONParser();
     JSONObject json;
@@ -78,7 +81,6 @@ public class SignUpActivity extends AppCompatActivity {
     }
     private class NewAccount extends AsyncTask<String, String, String> {
 
-        String name = ((TextView) findViewById(R.id.name)).getText().toString().trim();
         String accountName = ((TextView) findViewById(R.id.accountName)).getText().toString().trim();
         String accountPassword = ((TextView) findViewById(R.id.accountPassword)).getText().toString().trim();
 

@@ -26,20 +26,19 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import com.google.android.gms.appindexing.Action;
 import com.google.android.gms.appindexing.AppIndex;
 import com.google.android.gms.common.api.GoogleApiClient;
-
+import com.squareup.picasso.Picasso;
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -60,12 +59,14 @@ public class VodDrawerMenuActivity extends AppCompatActivity
     private static String url_getBuyVideo = "http://192.168.0.14:8080/VOD_servlet/AndroidBuyVideoServlet";
     private static String url_getVideosCategory = "http://192.168.0.14:8080/VOD_servlet/AndroidReturnListOfVideoCategoriesServlet";
 
+    private static String url_baseImageUrl = "http://192.168.0.14:8080/VOD_servlet/";
+
     String currentAccountLogin, currentAccountToken;
     Menu menu;
     Toolbar toolbar;
     Button buyButton,watchButton;
     MenuItem userInfo;
-
+    ImageView videoImageView;
     /**
      * ATTENTION: This was auto-generated to implement the App Indexing API.
      * See https://g.co/AppIndexing/AndroidStudio for more information.
@@ -237,7 +238,7 @@ public class VodDrawerMenuActivity extends AppCompatActivity
              for (int i = 0; i < categoryList.size(); i++) {
                 String currentID = "cat" + i;
                 int resId = getResources().getIdentifier(currentID,"id", "com.elkapw.vod.testapp1");
-                menuItemList.add(this.menu.add(0, resId, 20, categoryList.get(i).getCategoryName()));
+                menuItemList.add(this.menu.add(R.id.categoryMenu, resId, 30, categoryList.get(i).getCategoryName()));
                 System.out.println("Pobrana nazwa kategorii to: " + categoryList.get(i));
             };
 
@@ -246,9 +247,7 @@ public class VodDrawerMenuActivity extends AppCompatActivity
                 setVodCategoryDescription(categoryList.get(0).getCategoryName());
                 setVodContentDescription(categoryList.get(0).getCategoryDescription());
             }
-
         }
-
         System.out.println(menuItemList);
 
         return true;
@@ -375,11 +374,6 @@ public class VodDrawerMenuActivity extends AppCompatActivity
         AppIndex.AppIndexApi.start(client, viewAction);
     }
 
-
-
-
-
-
     @Override
     public void onStop() {
         super.onStop();
@@ -414,13 +408,22 @@ public class VodDrawerMenuActivity extends AppCompatActivity
             if (convertView == null) {
                 convertView = LayoutInflater.from(getContext()).inflate(R.layout.video_item, parent, false);
             }
-            // Lookup view for data population
+
+                       // Lookup view for data population
             TextView videoName = (TextView) convertView.findViewById(R.id.videoName);
             buyButton = (Button) convertView.findViewById(R.id.buyButton);
             TextView videoDescription = (TextView) convertView.findViewById(R.id.videoDescription);
             Button watchButton = (Button) convertView.findViewById(R.id.watchButton);
+            videoImageView = (ImageView) convertView.findViewById(R.id.videoImageView);
 
-            //    TextView videoHome = (TextView) convertView.findViewById(R.id.videoHome);
+
+
+// Pobranie obrazkow biblioteka Picasso!!!
+            Picasso.with(VodDrawerMenuActivity.this).load(url_baseImageUrl+ video.getImageUrl()).into(videoImageView);
+
+
+
+
             // Populate the data into the template view using the data object
             videoName.setText(video.getVideoName());
             videoDescription.setText(video.getVideoDescription());
@@ -440,8 +443,6 @@ public class VodDrawerMenuActivity extends AppCompatActivity
                     System.out.println("Klikniety KUP!!! pozycja nr + " + position);
                     buyVideos(Integer.toString(video.getVideoID()));
                 }});
-
-
 
             //W kategorii Free nie kupujemy filmow, sa one od razu dostepne
             if (currentCategoryID ==1){
@@ -465,7 +466,6 @@ public class VodDrawerMenuActivity extends AppCompatActivity
                 buyButton.setText("Kup");
 
             }
-
 
             // Return the completed view to render on screen
             return convertView;
@@ -543,6 +543,7 @@ public class VodDrawerMenuActivity extends AppCompatActivity
         builder.show();
     }
 
+
     class ServerAuthLogin extends AsyncTask<String, String, String> {
         String s = null;
         JSONParser jParser = new JSONParser();
@@ -578,7 +579,6 @@ public class VodDrawerMenuActivity extends AppCompatActivity
         @Override
         protected void onPostExecute(String result) {
 
-            super.onPostExecute(result);
             try {
                 //informacja zwrotna czy powodzenie
                 s = json.getString("info");
@@ -675,7 +675,7 @@ public class VodDrawerMenuActivity extends AppCompatActivity
 
                 for (int i = 0; i < size; i++) {
                     JSONObject video = json_array.getJSONObject(i);
-                    videoObject = new VideoObject(video.getString("videoname"), video.getString("videourl"), video.getString("videodescription"), video.getBoolean("isBought"), video.getInt("video_ID"));
+                    videoObject = new VideoObject(video.getString("videoname"), video.getString("videourl"), video.getString("videodescription"), video.getBoolean("isBought"), video.getInt("video_ID"), video.getString("videoimageurl"));
                     videoList.add(videoObject);
                 }
 

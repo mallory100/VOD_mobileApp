@@ -2,8 +2,11 @@ package com.elkapw.vod.testapp1;
 
 import android.accounts.Account;
 import android.accounts.AccountManager;
+import android.accounts.AccountManagerCallback;
 import android.accounts.AccountManagerFuture;
+import android.annotation.TargetApi;
 import android.content.Context;
+import android.os.Build;
 import android.os.Bundle;
 
 import java.io.Serializable;
@@ -86,6 +89,32 @@ public class AccountObject implements Serializable {
             }
         });
         watek.start();
+
+
+    }
+
+    @TargetApi(Build.VERSION_CODES.LOLLIPOP_MR1)
+    public void removeAccount(Context mContext){
+
+        AccountManager mAccountManager = AccountManager.get(mContext);
+       // mAccountManager.removeAccountExplicitly(acc[accountID]);
+
+
+        mAccountManager.removeAccount(acc[accountID], new AccountManagerCallback<Boolean>() {
+            @Override
+            public void run(AccountManagerFuture<Boolean> future) {
+                try {
+                    if (future.getResult()) {
+                        // do something
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
+            }
+        }, null);
+
+
 
 
     }

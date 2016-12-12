@@ -11,6 +11,7 @@ android {
         versionCode 1
         versionName "1.0"
     }
+    //compileOptions.encoding = "windows-1250" //write your encoding here - for polish signs
     buildTypes {
         release {
             minifyEnabled false
@@ -43,4 +44,5 @@ dependencies {
     compile 'com.github.bumptech.glide:glide:3.4.+'
     compile 'com.google.android.gms:play-services-appindexing:8.1.0'
     compile 'com.android.support:design:23.4.0'
+    compile 'com.squareup.picasso:picasso:2.5.2'
 }

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <item type="id" name="cat1" />
+    <item type="id" name="cat2" />
+    <item type="id" name="cat3" />
+    <item type="id" name="cat4" />
+    <item type="id" name="cat5" />
+    <item type="id" name="cat6" />
+    <item type="id" name="cat7" />
+    <item type="id" name="cat8" />
+    <item type="id" name="cat9" />
+    <item type="id" name="cat0" />
+</resources>

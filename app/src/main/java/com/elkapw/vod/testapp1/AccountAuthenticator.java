@@ -12,10 +12,12 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
+import android.widget.Toast;
 
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
 import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,15 +30,12 @@ public class AccountAuthenticator extends AbstractAccountAuthenticator {
 
     private final Context mContext;
 
-
     public AccountAuthenticator (Context context) {
         super(context);
 
         // I hate you! Google - set mContext as protected!
         this.mContext = context;
     }
-
-
 
     @Override
     public Bundle addAccount(AccountAuthenticatorResponse response, String accountType, String authTokenType, String[] requiredFeatures, Bundle options) throws NetworkErrorException {
@@ -66,7 +65,8 @@ public class AccountAuthenticator extends AbstractAccountAuthenticator {
             final String password = am.getPassword(account);
             if (password != null) {
 
-                ServerAuthentication newRequest = new ServerAuthentication();
+                // TO DO GET TOKEN FUNCTION
+             /*   ServerAuthentication newRequest = new ServerAuthentication();
                 newRequest.isTokenReturned = true;
                 newRequest.setUserLogin(account.name);
                 newRequest.setUserPassword(password);
@@ -75,7 +75,7 @@ public class AccountAuthenticator extends AbstractAccountAuthenticator {
                 while (authToken == null){
                     System.out.println("TOKEN nie zostal jeszcze pobrany bo : " + authToken);
                     authToken = newRequest.getUserToken();
-                }
+                }*/
             }
         }
 

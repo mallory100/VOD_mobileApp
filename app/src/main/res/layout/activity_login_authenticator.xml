@@ -16,7 +16,8 @@
         android:hint="Nazwa uzytkownika"
         android:inputType="textEmailAddress"
         android:padding="10dp"
-        android:textColorHint="#FFFFFFFF" />
+        android:textColorHint="#FFFFFFFF"
+        android:textColor="#fff1f8ff" />
 
     <EditText android:id="@+id/accountPassword"
         android:layout_width="match_parent"
@@ -25,7 +26,8 @@
         android:inputType="textPassword"
         android:hint="Haslo"
         android:padding="10dp"
-        android:textColorHint="#FFFFFFFF" />
+        android:textColorHint="#FFFFFFFF"
+        android:textColor="#fff1f8ff" />
 
     <Button android:id="@+id/submit"
         android:layout_width="match_parent"
@@ -35,13 +37,13 @@
         android:background="#ffabb2b9"
         android:layout_margin="10dp" />
 
-    <Button android:id="@+id/signUp"
+    <TextView android:id="@+id/signUpTextView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Dodaj nowe konto"
-        android:padding="10dp"
-        android:background="#ffabb2b9"
+        android:layout_marginTop="10dp"
+        android:padding="5dp"
         android:gravity="center"
-        android:layout_margin="10dp" />
+        android:text="Nie masz konta?"
+        android:textColor="#fff1f8ff" />
 
 </LinearLayout>
