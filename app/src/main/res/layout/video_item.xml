@@ -7,103 +7,79 @@
     android:background="#ffffff">
 
 
-    <LinearLayout
-        android:id="@+id/linearLayout1"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:weightSum="3"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true">
-        <ImageView
-            android:layout_width="180dp"
-            android:layout_height="108dp"
-            android:id="@+id/videoImageView"
-            android:src="@drawable/video_image_sample" />
+    <ImageView
+        android:layout_width="fill_parent"
+        android:layout_height="240dp"
+        android:id="@+id/videoImageView"
+        android:layout_centerHorizontal="true"
 
-        <TextView
-            android:id="@+id/videoName"
-            android:layout_width="157dp"
-            android:layout_height="match_parent"
-            android:text="Nazwa filmu video"
-            android:layout_gravity="center"
-            android:textStyle="bold"
-            android:layout_margin="10dp" />
+        />
 
-
-    </LinearLayout>
-
-    <LinearLayout
-    android:id="@+id/linearLayout2"
-    android:layout_width="fill_parent"
-    android:layout_height="40dp"
-    android:orientation="horizontal"
-    android:weightSum="3"
-    android:layout_below="@+id/linearLayout3"
-    android:layout_alignParentLeft="true"
-    android:layout_alignParentStart="true"
-    android:layout_alignParentRight="true"
-    android:layout_alignParentEnd="true"
-        android:layout_marginLeft="10dp"
-        android:layout_marginRight="10dp">
-
-
-
-    <Button
-        android:layout_width="150dp"
-        android:layout_height="wrap_content"
-        android:text="Kup"
-        android:id="@+id/buyButton"
-        android:background="#ff2e2635"
-        android:layout_margin="10dp"
-        android:layout_gravity="center"
-        android:textSize="10dp" />
-
-    <Button
-        android:layout_width="150dp"
-        android:layout_height="wrap_content"
-        android:text="Oglądaj"
-        android:id="@+id/watchButton"
-        android:background="#ff2e2635"
-        android:layout_margin="10dp"
-        android:layout_gravity="center"
-        android:textSize="10dp"
-        android:layout_marginLeft="10dp"
-        android:layout_weight="0.08" />
-
-</LinearLayout>
 
     <LinearLayout
         android:id="@+id/linearLayout3"
         android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="30dp"
         android:orientation="horizontal"
         android:weightSum="3"
-        android:layout_below="@+id/linearLayout1"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
+        android:layout_below="@+id/videoDescription"
+        android:layout_alignLeft="@+id/videoDescription"
+        android:layout_alignStart="@+id/videoDescription"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true">
 
 
-        <TextView
-            android:id="@+id/videoDescription"
-            android:layout_width="match_parent"
-            android:layout_height="37dp"
-            android:text="Opis filmu"
-            android:layout_below="@+id/linearLayout1"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentStart="true"
-            android:layout_marginLeft="10dp"
-            android:layout_marginRight="10dp" />
+        <Button
+            android:layout_width="166dp"
+            android:layout_height="match_parent"
+            android:text="Kup"
+            android:id="@+id/buyButton"
+            android:background="#ba7b7a80"
+            android:textSize="10dp"
+            android:gravity="center" />
+
+        <Button
+            android:layout_width="196dp"
+            android:layout_height="match_parent"
+            android:text="Oglądaj"
+            android:id="@+id/watchButton"
+            android:background="#ba7b7a80"
+            android:textSize="10dp"
+            android:gravity="center"
+            android:clickable="false" />
 
 
     </LinearLayout>
 
+    <TextView
+        android:id="@+id/videoName"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="Nazwa filmu video"
+        android:layout_gravity="center"
+        android:textStyle="bold"
+        android:textSize="25dp"
+        android:textColor="#fff1f8ff"
+        android:gravity="center"
+        android:layout_alignBottom="@+id/videoImageView"
+        android:layout_alignLeft="@+id/videoImageView"
+        android:layout_alignRight="@+id/videoImageView"
+                />
 
 
 
+    <TextView
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="Opis filmu"
+        android:id="@+id/videoDescription"
+        android:textStyle="bold"
+        android:layout_below="@+id/videoImageView"
+        android:layout_alignLeft="@+id/videoImageView"
+        android:layout_alignStart="@+id/videoImageView"
+        android:gravity="center"
+        android:layout_alignRight="@+id/videoImageView"
+        android:layout_alignEnd="@+id/videoImageView" />
 
 
 </RelativeLayout>
