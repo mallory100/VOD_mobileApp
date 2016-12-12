@@ -176,11 +176,11 @@ public class VodDrawerMenuActivity extends AppCompatActivity
         // gdy uzytkownik jest zalogowany to Item w Menu zmienia sie na "Wyloguj"
         if (isUserLogged == true){
             this.menu.findItem(R.id.logout).setTitle("Wyloguj");
-            userInfo.setTitle("Witaj " + currentAccountLogin);
+            userInfo.setTitle("Witaj użytkowniku " + currentAccountLogin);
         }
         if (isUserLogged == false){
 
-            userInfo.setTitle("Witaj niezalogowany!");
+            userInfo.setTitle("Witaj niezalogowany użytkowniku!");
             this.menu.findItem(R.id.logout).setTitle("Zaloguj");
 
         }
@@ -235,10 +235,16 @@ public class VodDrawerMenuActivity extends AppCompatActivity
 
         final ArrayList<MenuItem> menuItemList = new ArrayList<MenuItem>();
         if (categoryList!= null) {
+            Menu submenu = this.menu.addSubMenu(0,0,30,"Kategorie");
+            
+
              for (int i = 0; i < categoryList.size(); i++) {
-                String currentID = "cat" + i;
+
+
+                 String currentID = "cat" + i;
                 int resId = getResources().getIdentifier(currentID,"id", "com.elkapw.vod.testapp1");
-                menuItemList.add(this.menu.add(R.id.categoryMenu, resId, 30, categoryList.get(i).getCategoryName()));
+
+                menuItemList.add(submenu.add(0, resId, 0, categoryList.get(i).getCategoryName()));
                 System.out.println("Pobrana nazwa kategorii to: " + categoryList.get(i));
             };
 
