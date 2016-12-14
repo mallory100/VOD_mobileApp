@@ -340,7 +340,7 @@ public class LoginAuthenticatorActivity extends Activity {
         String accountToken;
         String accountLogin;
 
-        //private String url_login = "http://192.168.0.14:5080/red56/AndroidLoginServlet";
+        //private String url_login = "http://192.168.0.14:F80/red56/AndroidLoginServlet";
 
         private String url_login = "http://192.168.0.14:8080/VOD_servlet/AndroidLoginServlet";
 
