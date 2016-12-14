@@ -1,56 +1,63 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <item android:title="Użytkownik"
-        android:orderInCategory="10">
+    <group android:id="@+id/loginMenu"
+    android:orderInCategory="10"
         >
-        <menu>
+
+        <item android:title="@string/menuLogin"
+            android:textColor="#ffffff">
+<menu>
         <item
             android:id="@+id/userInfo"
-            android:title="Witaj niezalogowany!" />
+            android:title="Witaj niezalogowany!"
+            android:textColor="#ffffff"
+            />
+
+        <item
+            android:id="@+id/logout"
+            android:title="Wyloguj"
+            android:textColor="#ffffff"/>
+</menu>
+        </item>
+    </group>
+
+
+
+
+    <item android:title="@string/menuCategory"
+        android:orderInCategory="20"
+        android:textColor="#ffffff">
+        <menu
+            android:id="@+id/categoryMenu"
+            android:textColor="#ffffff">
+
 
         </menu>
-
-    </item>
-
-    <item android:title="Kategorie"
-        android:id="@+id/categoryMenu"
-        android:orderInCategory="20"
-        >
-
-
-    <menu>
-        <item
-            android:title="Wybierz kategorię:" />
-
-
-</menu>
     </item>
 
 
 
 
-    <item android:title="Aplikacja"
+    <group android:id="@+id/applicationMenu"
         android:orderInCategory="100">
 
-        <menu>
+        <item android:title="@string/menuApp">
 
-            <item
-                android:id="@+id/logout"
-                android:icon="@drawable/ic_menu_gallery"
-                android:title="Wyloguj" />
+        <menu>
             <item
                 android:id="@+id/appSettings"
                 android:icon="@drawable/ic_menu_camera"
-                android:title="Ustawienia" />
+                android:title="Ustawienia"
+                android:textColor="#ffffff"/>
             <item
                 android:id="@+id/help"
                 android:icon="@drawable/ic_menu_gallery"
-                android:title="Pomoc" />
-
+                android:title="Pomoc"
+                android:textColor="#ffffff"/>
         </menu>
     </item>
-
+    </group>
 
 
 
