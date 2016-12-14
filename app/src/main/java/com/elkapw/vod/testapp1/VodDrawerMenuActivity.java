@@ -64,7 +64,7 @@ public class VodDrawerMenuActivity extends AppCompatActivity
     String currentAccountLogin, currentAccountToken;
     Menu menu;
     Toolbar toolbar;
-    Button buyButton,watchButton;
+    //Button buyButton,watchButton;
     MenuItem userInfo;
     ImageView videoImageView;
     /**
@@ -435,7 +435,7 @@ public class VodDrawerMenuActivity extends AppCompatActivity
 
             //Podlaczenie elementow widoku do xmla
             final TextView videoName = (TextView) convertView.findViewById(R.id.videoName);
-            buyButton = (Button) convertView.findViewById(R.id.buyButton);
+            final Button buyButton = (Button) convertView.findViewById(R.id.buyButton);
             final TextView videoDescription = (TextView) convertView.findViewById(R.id.videoDescription);
             final Button watchButton = (Button) convertView.findViewById(R.id.watchButton);
             videoImageView = (ImageView) convertView.findViewById(R.id.videoImageView);
@@ -452,36 +452,6 @@ public class VodDrawerMenuActivity extends AppCompatActivity
             videoDescription.setBackgroundColor(Color.parseColor("#b07b7a80"));
             videoDescription.setVisibility(View.INVISIBLE);
             videoImageView.setClickable(true);
-            videoImageView.setOnClickListener(new View.OnClickListener() {
-                boolean wasClicked=false;
-
-                @Override
-                public void onClick(View arg0) {
-
-
-
-                    if (wasClicked==false) {
-
-                        System.out.println("Klikniety obrazek pozycja nr " + position);
-                        videoDescription.setVisibility(View.VISIBLE);
-                        videoName.setVisibility(View.INVISIBLE);
-
-                        wasClicked=true;
-                    } else {
-
-                        videoName.setVisibility(View.VISIBLE);
-                        videoDescription.setVisibility(View.INVISIBLE);
-                        wasClicked=false;
-
-
-                    }
-
-
-                }
-            });
-
-
-
 
             watchButton.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -496,17 +466,23 @@ public class VodDrawerMenuActivity extends AppCompatActivity
                 public void onClick(View arg0) {
                     System.out.println("Klikniety KUP!!! pozycja nr + " + position);
                     buyVideos(Integer.toString(video.getVideoID()));
-                }});
+                }
+            });
 
 
+            buyButton.setVisibility(View.INVISIBLE);
+            watchButton.setVisibility(View.INVISIBLE);
 
+            /*
             //W kategorii Free nie kupujemy filmow, sa one od razu dostepne
             if (currentCategoryID ==1){
                 buyButton.setVisibility(View.INVISIBLE);
+                watchButton.setVisibility(View.VISIBLE);
                 watchButton.setClickable(true);
-            }
+            }*/
 
-            if (video.getIsBought()==true){
+            /*
+            if (video.getIsBought()==true && currentCategoryID!=1){
                 watchButton.setVisibility(View.VISIBLE);
                 watchButton.setClickable(true);
                 watchButton.setBackgroundColor(Color.parseColor("#ff7b7a80"));
@@ -514,14 +490,87 @@ public class VodDrawerMenuActivity extends AppCompatActivity
                 //buyButton.setBackgroundColor(Color.WHITE);
                 buyButton.setClickable(false);
                 buyButton.setText("Zakupiono");
+                buyButton.setVisibility(View.VISIBLE);
             }
 
-            else {
+            if  (video.getIsBought()==false && currentCategoryID!=1){
                 watchButton.setVisibility(View.INVISIBLE);
+                buyButton.setVisibility(View.VISIBLE);
                 buyButton.setBackgroundColor(Color.parseColor("#ff7b7a80"));
                 buyButton.setClickable(true);
                 buyButton.setText("Kup");
             }
+*/
+
+            videoImageView.setOnClickListener(new View.OnClickListener() {
+                boolean wasClicked=false;
+
+                @Override
+                public void onClick(View arg0) {
+
+
+
+                    if (wasClicked==false) {
+
+                        System.out.println("Klikniety obrazek pozycja nr " + position);
+                        videoDescription.setVisibility(View.VISIBLE);
+                        videoName.setVisibility(View.INVISIBLE);
+                        watchButton.setVisibility(View.VISIBLE);
+                        buyButton.setVisibility(View.VISIBLE);
+
+
+                        if (currentCategoryID ==1){
+                            buyButton.setVisibility(View.INVISIBLE);
+                            watchButton.setVisibility(View.VISIBLE);
+                            watchButton.setClickable(true);
+                        }
+
+
+                        if (video.getIsBought()==true && currentCategoryID!=1){
+                            watchButton.setVisibility(View.VISIBLE);
+                            watchButton.setClickable(true);
+                            watchButton.setBackgroundColor(Color.parseColor("#ff7b7a80"));
+
+                            //buyButton.setBackgroundColor(Color.WHITE);
+                            buyButton.setClickable(false);
+                            buyButton.setText("Zakupiono");
+                            buyButton.setVisibility(View.VISIBLE);
+                        }
+
+                        if  (video.getIsBought()==false && currentCategoryID!=1){
+                            watchButton.setVisibility(View.INVISIBLE);
+                            buyButton.setVisibility(View.VISIBLE);
+                            buyButton.setBackgroundColor(Color.parseColor("#ff7b7a80"));
+                            buyButton.setClickable(true);
+                            buyButton.setText("Kup");
+                        }
+
+
+
+
+                        wasClicked=true;
+                    } else {
+
+                        videoName.setVisibility(View.VISIBLE);
+                        videoDescription.setVisibility(View.INVISIBLE);
+                        watchButton.setVisibility(View.INVISIBLE);
+                        buyButton.setVisibility(View.INVISIBLE);
+                        wasClicked=false;
+
+
+                    }
+
+
+                }
+            });
+
+
+
+
+
+
+
+
 
             // Return the completed view to render on screen
             return convertView;
