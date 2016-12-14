@@ -159,23 +159,6 @@ public class VodDrawerMenuActivity extends AppCompatActivity
 
         }); */
 
-        final SwipeDetector swipeDetector = new SwipeDetector();
-        listView.setOnTouchListener(swipeDetector);
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> arg0, View arg1, int position,
-                                    long arg3) {
-                if (swipeDetector.swipeDetected()) {
-                    if (swipeDetector.getAction() == SwipeDetector.Action.RL) {
-
-                    }
-                    if (swipeDetector.getAction() == SwipeDetector.Action.RL) {
-
-                    }else {
-
-                    }
-                }
-            }});
 
 
 
@@ -529,7 +512,7 @@ public class VodDrawerMenuActivity extends AppCompatActivity
                         if (video.getIsBought()==true && currentCategoryID!=1){
                             watchButton.setVisibility(View.VISIBLE);
                             watchButton.setClickable(true);
-                            watchButton.setBackgroundColor(Color.parseColor("#ff7b7a80"));
+                            watchButton.setBackgroundColor(Color.parseColor("#ff368596"));
 
                             //buyButton.setBackgroundColor(Color.WHITE);
                             buyButton.setClickable(false);
@@ -540,7 +523,7 @@ public class VodDrawerMenuActivity extends AppCompatActivity
                         if  (video.getIsBought()==false && currentCategoryID!=1){
                             watchButton.setVisibility(View.INVISIBLE);
                             buyButton.setVisibility(View.VISIBLE);
-                            buyButton.setBackgroundColor(Color.parseColor("#ff7b7a80"));
+                            buyButton.setBackgroundColor(Color.parseColor("#ff368596"));
                             buyButton.setClickable(true);
                             buyButton.setText("Kup");
                         }
