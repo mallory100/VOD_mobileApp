@@ -1,6 +1,8 @@
 package com.elkapw.vod.testapp1;
 
 import android.app.AlertDialog;
+import android.content.Context;
+import android.net.ConnectivityManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 
@@ -34,17 +36,10 @@ import java.util.List;
 public class SignUpActivity extends AppCompatActivity {
 
     private String mAccountType;
-
     String accountName, accountPassword, accountToken;
-
-  //  private static String url_login = "http://192.168.0.14:5080/red56/AndroidCreateAccountServlet";
     private static String url_login = "http://192.168.0.14:8080/VOD_servlet/AndroidCreateAccountServlet";
-
-
-
     JSONParser jParser = new JSONParser();
     JSONObject json;
-    Toast successMessage;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,20 +57,12 @@ public class SignUpActivity extends AppCompatActivity {
             }
         });
 
-
         findViewById(R.id.submit).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
                 NewAccount newLogin = new NewAccount();
                 newLogin.execute(accountName, accountPassword);
-
-                successMessage.makeText(getApplication().getBaseContext(),"Pomyślnie stworzono konto!", Toast.LENGTH_SHORT);
-                goToLoginAuthenticatorActivity();
-                successMessage.makeText(getApplication().getBaseContext(),"Pomyślnie stworzono konto!", Toast.LENGTH_LONG);
-
-
-
             }
         });
     }
@@ -83,51 +70,59 @@ public class SignUpActivity extends AppCompatActivity {
 
         String accountName = ((TextView) findViewById(R.id.accountName)).getText().toString().trim();
         String accountPassword = ((TextView) findViewById(R.id.accountPassword)).getText().toString().trim();
-
         String s = null;
-        AlertDialog.Builder popup;
+        boolean isErrorCatched = false;
 
         @Override
         protected String doInBackground(String... args) {
 
-            // Getting username and password from user input
-            List<NameValuePair> params = new ArrayList<NameValuePair>();
-            params.add(new BasicNameValuePair("u", accountName));
-            params.add(new BasicNameValuePair("p", accountPassword));
-            json = jParser.makeHttpRequest(url_login, "GET", params);
-
-            try {
-                s = json.getString("info");
-                Log.d("Msg", json.getString("info"));
-
-                accountToken = json.getString("token");
-                if (s.equals("success")) {
-
-                    //goToAuthenticatorActivity();
-                    //  goToVodContentActivity();
+            //jezeli dostep do sieci:
+            if (isNetworkConnected()==true) {
+                    // Pobranie loginu i hasla od uzytkownika
+                try{
+                    List<NameValuePair> params = new ArrayList<NameValuePair>();
+                    params.add(new BasicNameValuePair("u", accountName));
+                    params.add(new BasicNameValuePair("p", accountPassword));
+                    json = jParser.makeHttpRequest(url_login, "GET", params);
+                    s = json.getString("info");
+                } catch (JSONException e) {
+                    isErrorCatched = true;
+                    e.printStackTrace();
                 }
-            } catch (JSONException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
             }
-
             return null;
         }
-
 
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-
         }
 
         @Override
         protected void onPostExecute(String result) {
             super.onPostExecute(result);
-        }
-    }
 
-        @Override
+            if (isNetworkConnected()==false){
+                
+                Toast.makeText(getApplication().getBaseContext(), "Brak połączenia z siecia!", Toast.LENGTH_SHORT).show();
+            }
+            else {
+
+                if (isErrorCatched==true){
+                    Toast.makeText(getApplication().getBaseContext(), "Błąd podczas tworzenia konta", Toast.LENGTH_SHORT).show();
+                }
+                else {
+                    if (s.equals("success")) {
+                        goToLoginAuthenticatorActivity();
+                        Toast.makeText(getApplication().getBaseContext(), "Pomyślnie stworzono konto!", Toast.LENGTH_LONG).show();
+                    }
+                    else{
+                        Toast.makeText(getApplication().getBaseContext(), "Błąd podczas tworzenia konta", Toast.LENGTH_SHORT).show();
+                    }
+            }
+            }}
+        }
+            @Override
     public void onBackPressed() {
         setResult(RESULT_CANCELED);
         super.onBackPressed();
@@ -139,6 +134,11 @@ public class SignUpActivity extends AppCompatActivity {
         startActivity(loginAuthenticatorActivityWindow);
     }
 
+    private boolean isNetworkConnected() {
+        ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+
+        return cm.getActiveNetworkInfo() != null;
+    }
 
 
 }
