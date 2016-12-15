@@ -23,7 +23,6 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -55,6 +54,7 @@ public class VodDrawerMenuActivity extends AppCompatActivity
     ArrayList<CategoryObject> categoryList;
     int currentCategoryID;
 
+
     private static String url_getAuthVideosData = "http://192.168.0.14:8080/VOD_servlet/AndroidReturnVideosForUserServlet";
     private static String url_getBuyVideo = "http://192.168.0.14:8080/VOD_servlet/AndroidBuyVideoServlet";
     private static String url_getVideosCategory = "http://192.168.0.14:8080/VOD_servlet/AndroidReturnListOfVideoCategoriesServlet";
@@ -67,6 +67,7 @@ public class VodDrawerMenuActivity extends AppCompatActivity
     //Button buyButton,watchButton;
     MenuItem userInfo;
     ImageView videoImageView;
+    int video_postion =1;
     /**
      * ATTENTION: This was auto-generated to implement the App Indexing API.
      * See https://g.co/AppIndexing/AndroidStudio for more information.
@@ -299,10 +300,8 @@ public class VodDrawerMenuActivity extends AppCompatActivity
                 }
             }
 
-        } else if (id == R.id.help) {
 
-
-        } else if (id == R.id.appSettings) {
+        } else if (id == R.id.about) {
 
             AccountObject accountObject = new AccountObject(this);
             Account[] acc = accountObject.returnAccountList(getString(R.string.accountTypePremium), this);
@@ -335,8 +334,11 @@ public class VodDrawerMenuActivity extends AppCompatActivity
                 accountObject.removeAccount(this);
                 currentCategoryID = 1;
                 loadVideosFromServer();
-                setVodCategoryDescription("PHIII");
-                setVodContentDescription("Witaj! Zaloguj sie by zobaczysz wszystkie materiały!");
+                // kategoria darmowa ma ID 1
+                if (currentCategoryID==1|| categoryList.size()!=0){
+                    setVodCategoryDescription(categoryList.get(0).getCategoryName());
+                    setVodContentDescription(categoryList.get(0).getCategoryDescription());
+                }
                 item.setTitle("Zaloguj");
                 Toast.makeText(this, "Pomyślnie wylogowano", Toast.LENGTH_LONG).show();
                 userInfo.setTitle("Witaj niezalogowany!");
@@ -412,8 +414,9 @@ public class VodDrawerMenuActivity extends AppCompatActivity
             if (convertView == null) {
                 convertView = LayoutInflater.from(getContext()).inflate(R.layout.video_item, parent, false);
             }
-            //tabla z aktualnie kliknietymi pozycjami:
-            //final int[] table =  new int[20];
+
+
+
 
 
             //Podlaczenie elementow widoku do xmla
@@ -448,42 +451,14 @@ public class VodDrawerMenuActivity extends AppCompatActivity
                 @Override
                 public void onClick(View arg0) {
                     System.out.println("Klikniety KUP!!! pozycja nr + " + position);
-                    buyVideos(Integer.toString(video.getVideoID()));
+                    buyVideos(Integer.toString(video.getVideoID()), position);
+                    ;
                 }
             });
 
 
             buyButton.setVisibility(View.INVISIBLE);
             watchButton.setVisibility(View.INVISIBLE);
-
-            /*
-            //W kategorii Free nie kupujemy filmow, sa one od razu dostepne
-            if (currentCategoryID ==1){
-                buyButton.setVisibility(View.INVISIBLE);
-                watchButton.setVisibility(View.VISIBLE);
-                watchButton.setClickable(true);
-            }*/
-
-            /*
-            if (video.getIsBought()==true && currentCategoryID!=1){
-                watchButton.setVisibility(View.VISIBLE);
-                watchButton.setClickable(true);
-                watchButton.setBackgroundColor(Color.parseColor("#ff7b7a80"));
-
-                //buyButton.setBackgroundColor(Color.WHITE);
-                buyButton.setClickable(false);
-                buyButton.setText("Zakupiono");
-                buyButton.setVisibility(View.VISIBLE);
-            }
-
-            if  (video.getIsBought()==false && currentCategoryID!=1){
-                watchButton.setVisibility(View.INVISIBLE);
-                buyButton.setVisibility(View.VISIBLE);
-                buyButton.setBackgroundColor(Color.parseColor("#ff7b7a80"));
-                buyButton.setClickable(true);
-                buyButton.setText("Kup");
-            }
-*/
 
             videoImageView.setOnClickListener(new View.OnClickListener() {
                 boolean wasClicked=false;
@@ -528,9 +503,6 @@ public class VodDrawerMenuActivity extends AppCompatActivity
                             buyButton.setText("Kup");
                         }
 
-
-
-
                         wasClicked=true;
                     } else {
 
@@ -539,21 +511,11 @@ public class VodDrawerMenuActivity extends AppCompatActivity
                         watchButton.setVisibility(View.INVISIBLE);
                         buyButton.setVisibility(View.INVISIBLE);
                         wasClicked=false;
-
-
                     }
 
 
                 }
             });
-
-
-
-
-
-
-
-
 
             // Return the completed view to render on screen
             return convertView;
@@ -721,8 +683,10 @@ public class VodDrawerMenuActivity extends AppCompatActivity
         vd.execute();
     }
 
-    private void buyVideos(String mVideo_Id){
+    private void buyVideos(String mVideo_Id, int mPosition){
         PremiumVideoBuyer request = new PremiumVideoBuyer();
+        video_postion=mPosition+1; //kupiony film, pozycja do powrotu po zladowaniu listy
+        System.out.println("pozycja w buyvideo" + video_postion);
         request.execute(mVideo_Id);
     };
 
@@ -735,6 +699,7 @@ public class VodDrawerMenuActivity extends AppCompatActivity
     private class AuthVideoDataReader extends AsyncTask<String, String, String> {
         String s = null;
 
+
         String category = String.valueOf(currentCategoryID);
         @Override
         protected String doInBackground(String... args) {
@@ -746,7 +711,7 @@ public class VodDrawerMenuActivity extends AppCompatActivity
             try {
                 JSONArray json_array = jsonVideo.getJSONArray("Video");
                 int size = json_array.length();
-                videoList.clear();
+
 
                 for (int i = 0; i < size; i++) {
                     JSONObject video = json_array.getJSONObject(i);
@@ -756,6 +721,10 @@ public class VodDrawerMenuActivity extends AppCompatActivity
             } catch (JSONException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
+
+
+
+                setVodContentDescription("---"); //blad pobierania filmow
             }
             catch (Exception e) {
                 e.printStackTrace();
@@ -765,7 +734,7 @@ public class VodDrawerMenuActivity extends AppCompatActivity
 
         @Override
         protected void onPreExecute() {
-
+            videoList.clear();
             super.onPreExecute();
             System.out.println("Rozpoczynamy pobieranie filmów z serwera");
             findViewById(R.id.loadingPanel).setVisibility(View.VISIBLE);
@@ -778,11 +747,38 @@ public class VodDrawerMenuActivity extends AppCompatActivity
             System.out.println("Filmy pobrane pomyślnie z serwera!");
             findViewById(R.id.loadingPanel).setVisibility(View.GONE);
 
+
             // Create the adapter to convert the array to views and attach the adapter to a ListView
             VideosAdapter adapter = new VideosAdapter(VodDrawerMenuActivity.this, videoList);
             listView.setAdapter(adapter);
-        }
-    }
+
+            if (video_postion!=1){
+
+                listView.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        System.out.println("Odswiezenie do pozycji" + video_postion);
+                        listView.smoothScrollToPosition(video_postion);
+                        video_postion=1;
+
+                        
+                    }
+                });
+
+
+            }
+
+
+
+
+
+
+
+
+
+
+
+        }}
 
 
     // Synchronizacja - Zakupienie danego filmu
@@ -822,10 +818,12 @@ public class VodDrawerMenuActivity extends AppCompatActivity
                 if (s.equals("success")) {
 
                     System.out.println("FILM pomyslnie zakupiony");
-                    loadVideosFromServer();
+                    loadVideosFromServer(); //tutaj dac videoID
+
                 } else {
 
                     System.out.println("Blad podczas zakupu filmu");
+                    video_postion=1;
                 }
 
             } catch (JSONException e) {
@@ -836,6 +834,8 @@ public class VodDrawerMenuActivity extends AppCompatActivity
             }
         }
     }
+
+
 
     // Synchronizacja - Pobranie kategorii filmow
     private class VideoCategoryReader extends AsyncTask<String, String, String> {
