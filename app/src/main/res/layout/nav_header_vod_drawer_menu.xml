@@ -3,7 +3,7 @@
     android:id="@+id/navHeaderLayout"
     android:layout_width="match_parent"
     android:layout_height="@dimen/nav_header_height"
-    android:background="@drawable/login_background"
+    android:background="@drawable/background_pattern_medium"
     android:gravity="bottom"
     android:orientation="vertical"
     android:paddingBottom="@dimen/activity_vertical_margin"
@@ -28,7 +28,6 @@
         android:text="VOD"
         android:textColor="#ffffffff"
         android:textSize="@dimen/design_navigation_icon_size"
-        android:layout_gravity="center"
         android:gravity="center" />
 
 

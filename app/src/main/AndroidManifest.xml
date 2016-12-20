@@ -23,14 +23,11 @@
     <uses-permission android:name="android.permission.GET_ACCOUNTS" />
     <uses-permission android:name="android.permission.READ_PROFILE" />
     <uses-permission android:name="android.permission.READ_CONTACTS" />
-
-
     <uses-permission android:name="android.permission.USE_CREDENTIALS" />
 
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
-        android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
 
@@ -47,19 +44,7 @@
                 android:resource="@xml/authenticator" />
         </service>
 
-        <activity
-            android:name=".LoginAuthenticatorActivity"
-            android:label="Video On Demand LOGIN">
-            <intent-filter>
-                <action android:name="android.accounts.AccountAuthenticator" />
 
-            </intent-filter>
-        </activity>
-        <activity
-            android:name=".VideoViewActivity"
-            android:label="Video On Demand"
-            android:screenOrientation="landscape"
-        />
 
 
         <!--
@@ -70,10 +55,27 @@
             android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version" />
 
+
+        <activity
+            android:name=".LoginAuthenticatorActivity"
+            android:label="Logowanie użytkownika">
+
+            <intent-filter>
+                <action android:name="android.accounts.AccountAuthenticator" />
+
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".VideoViewActivity"
+            android:label="Video On Demand"
+            android:screenOrientation="landscape"
+            />
+
         <activity
             android:name=".VodDrawerMenuActivity"
-            android:label="Video On Demand"
+            android:label="Wideo na żądanie"
             android:theme="@style/AppTheme.NoActionBar">
+
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <action android:name="android.accounts.AccountAuthenticator" />
@@ -83,10 +85,9 @@
         </activity>
 
 
-
-
-
-        <activity android:name=".SignUpActivity"></activity>
+        <activity android:name=".SignUpActivity"
+            android:label="Rejestracja nowego użytkownika">
+        </activity>
     </application>
 
 </manifest>

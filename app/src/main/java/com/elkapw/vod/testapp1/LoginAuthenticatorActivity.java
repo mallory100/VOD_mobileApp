@@ -5,8 +5,10 @@ import android.accounts.AccountManager;
 import android.accounts.AccountManagerFuture;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.net.ConnectivityManager;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -408,27 +410,35 @@ public class LoginAuthenticatorActivity extends Activity {
             String s = null;
             JSONParser jParser = new JSONParser();
             JSONObject json;
-
-            String accountToken;
-            String accountLogin;
-
+            String accountToken, accountLogin;
             private  String url_login = "http://192.168.0.14:8080/VOD_servlet/AndroidReturnTokenServlet";
-
-          //  private  String url_login = "http://192.168.0.14:5080/red56/AndroidReturnTokenServlet";
-
-
-
+            boolean isExceptionCatched=false;
             @Override
             protected String doInBackground(String... args) {
                 accountLogin = args[0] ;
                 accountToken = args[1];
 
-                // Getting username and password from user input
-                List<NameValuePair> params = new ArrayList<NameValuePair>();
-                params.add(new BasicNameValuePair("u", accountLogin));
-                params.add(new BasicNameValuePair("p", accountToken));
-                json = jParser.makeHttpRequest(url_login, "GET", params);
-                System.out.println("OPERACJA : Return token and LOGIN USER");
+                if (isNetworkConnected()==true){
+                    try{
+                        // Pobranie loginu i tokenu
+                        List<NameValuePair> params = new ArrayList<NameValuePair>();
+                        params.add(new BasicNameValuePair("u", accountLogin));
+                        params.add(new BasicNameValuePair("p", accountToken));
+                        json = jParser.makeHttpRequest(url_login, "GET", params);
+                        System.out.println("OPERACJA : Return token and LOGIN USER");
+                        s = json.getString("info");
+                        accountToken = json.getString("token");;
+                    }
+                    catch (JSONException e) {
+                        // TODO Auto-generated catch block
+                        isExceptionCatched=true;
+                        e.printStackTrace();
+                    }
+                    catch (Exception e) {
+                        // TODO Auto-generated catch block
+                        e.printStackTrace();
+                    }
+                                    }
 
                 return "Wykonano doinBackground";
             }
@@ -444,10 +454,14 @@ public class LoginAuthenticatorActivity extends Activity {
             protected void onPostExecute(String result) {
 
                 super.onPostExecute(result);
-                try {
+                if (isExceptionCatched==true){
+                    Toast.makeText(getApplication().getBaseContext(), "Nieprawidłowy login bądź hasło! Spróbuj ponownie", Toast.LENGTH_SHORT).show();
+                }
+                if (isNetworkConnected()==false){
+                    Toast.makeText(getApplication().getBaseContext(), "Brak połączenia z siecia!", Toast.LENGTH_SHORT).show();
+                }
+                else {
                     //informacja zwrotna czy powodzenie
-                    s = json.getString("info");
-                    accountToken = json.getString("token");
                     Bundle data = new Bundle();
                     if (s.equals("success")) {
 
@@ -463,27 +477,25 @@ public class LoginAuthenticatorActivity extends Activity {
                         res.putExtras(data);
                         finishLogin(res);
                         goToVodContentActivity(username);
-
+                        Toast.makeText(getApplication().getBaseContext(), "Pomyślnie zalogowano!", Toast.LENGTH_LONG).show();
                     }
-                    if (s.equals("fail")) {
-
-                       System.out.println("ServerAuth RTL - DoInBackground - FAIL!!");
-                        Toast.makeText(LoginAuthenticatorActivity.this, "Brak uzytkownika w systemie, zarejestruj sie", Toast.LENGTH_SHORT).show();
-
-                       goToLoginAuthenticatorActivity(); //powrot do ekranu logowania
-                    }
-
-                } catch (JSONException e) {
-                    // TODO Auto-generated catch block
-
-                    e.printStackTrace();
-
                 }
-                System.out.println("ServerAuth RTL - ON POST EXECUTE - DONE!!");
 
+                System.out.println("ServerAuth RTL - ON POST EXECUTE - DONE!!");
             }
 
-    }};
+    }
+
+    private boolean isNetworkConnected() {
+        ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+
+        return cm.getActiveNetworkInfo() != null;
+    }
+
+
+
+
+};
 
 
 

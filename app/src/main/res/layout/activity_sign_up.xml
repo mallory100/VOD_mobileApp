@@ -3,21 +3,26 @@
     android:orientation="vertical"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    android:background="#ffabb2b9"
-    android:paddingLeft="17dp"
-    android:paddingRight="17dp"
-    android:gravity="center">
+    android:background="#ff7b7a80"
+    android:weightSum="1">
 
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/imageView3"
+        android:background="@drawable/background_pattern_medium" />
 
     <EditText
         android:id="@+id/accountName"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
-        android:hint="Login"
+        android:hint="Nazwa uzytkownika"
         android:inputType="textEmailAddress"
         android:padding="10dp"
-        />
+        android:textColor="#ffffffff"
+        android:textColorHint="#ffffffff" />
 
     <EditText
         android:id="@+id/accountPassword"
@@ -27,15 +32,18 @@
         android:inputType="textPassword"
         android:hint="Hasło"
         android:padding="10dp"
-        />
+        android:textColorHint="#ffffffff"
+        android:textColor="#ffffffff" />
 
     <Button
         android:id="@+id/submit"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
         android:text="Stwórz konto"
-        android:padding="10dp"/>
+        android:padding="10dp"
+        android:textColor="#ffffffff"
+        android:background="#ff368596"
+        android:layout_margin="10dp" />
 
     <TextView android:id="@+id/alreadyMember"
         android:layout_width="match_parent"
@@ -43,5 +51,6 @@
         android:layout_marginTop="10dp"
         android:padding="5dp"
         android:gravity="center"
-        android:text="Masz już konto?"/>
+        android:text="Masz już konto?"
+        android:textColor="#ffffffff" />
 </LinearLayout>

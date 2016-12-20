@@ -85,8 +85,8 @@
     <string name="accountTypeStandard">com.elkapw.vod.standard</string>
 
 
-    <string name="vodContentDescription">"Wybierz film ktory chcesz ogladac"</string>
-    <string name="vodCategoryDescription">"Jesteś w kategorii: "</string>
+    <string name="vodContentDescription">"Trwa ładowanie"</string>
+    <string name="vodCategoryDescription">"Jeszcze chwila..."</string>
 
 
     <!-- String related to Menu -->

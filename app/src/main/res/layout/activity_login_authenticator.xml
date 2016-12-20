@@ -1,13 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
-    android:layout_width="wrap_content"
-    android:layout_height="match_parent"
-    android:background="@drawable/login_background"
-    android:paddingLeft="17dp"
-    android:paddingRight="17dp"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
     android:id="@+id/loginActivity"
-    android:gravity="center">
+    android:background="#ff7b7a80"
+    android:orientation="vertical"
+    android:weightSum="1">
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/imageView2"
+        android:background="@drawable/background_pattern_medium" />
 
     <EditText android:id="@+id/accountName"
         android:layout_width="match_parent"
@@ -15,9 +19,10 @@
         android:layout_marginTop="20dp"
         android:hint="Nazwa uzytkownika"
         android:inputType="textEmailAddress"
-        android:padding="10dp"
         android:textColorHint="#FFFFFFFF"
-        android:textColor="#fff1f8ff" />
+        android:textColor="#fff1f8ff"
+        android:layout_gravity="center_horizontal"
+        android:padding="10dp" />
 
     <EditText android:id="@+id/accountPassword"
         android:layout_width="match_parent"
@@ -34,8 +39,9 @@
         android:layout_height="wrap_content"
         android:text="Zaloguj"
         android:padding="10dp"
-        android:background="#ffabb2b9"
-        android:layout_margin="10dp" />
+        android:background="#ff368596"
+        android:layout_margin="10dp"
+        android:textColor="#ffffffff" />
 
     <TextView android:id="@+id/signUpTextView"
         android:layout_width="match_parent"

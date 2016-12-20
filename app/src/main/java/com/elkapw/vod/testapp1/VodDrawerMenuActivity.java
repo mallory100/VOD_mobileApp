@@ -7,6 +7,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Typeface;
+import android.net.ConnectivityManager;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -34,6 +35,7 @@ import com.google.android.gms.appindexing.AppIndex;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.squareup.picasso.Picasso;
 import org.apache.http.NameValuePair;
+import org.apache.http.conn.HttpHostConnectException;
 import org.apache.http.message.BasicNameValuePair;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -240,7 +242,7 @@ public class VodDrawerMenuActivity extends AppCompatActivity
             };
 
             // kategoria darmowa ma ID 1
-            if (currentCategoryID==1|| categoryList.size()!=0){
+            if (currentCategoryID==1 && categoryList.size()!=0){
                 setVodCategoryDescription(categoryList.get(0).getCategoryName());
                 setVodContentDescription(categoryList.get(0).getCategoryDescription());
             }
@@ -290,6 +292,9 @@ public class VodDrawerMenuActivity extends AppCompatActivity
 
             //jezeli zalogowany uzytkownik uzyskuje dostep, jezeli nie - popup o braku dostepu
             if (isUserLogged==true) {
+                setVodCategoryDescription("Jeszcze chwilka...");
+                setVodContentDescription("Trwa ładowanie");
+                videoList.clear();
                 loadVideosFromServer();
                 setVodCategoryDescription(categoryObject.getCategoryName());
                 setVodContentDescription(categoryObject.getCategoryDescription());
@@ -303,22 +308,7 @@ public class VodDrawerMenuActivity extends AppCompatActivity
 
         } else if (id == R.id.about) {
 
-            AccountObject accountObject = new AccountObject(this);
-            Account[] acc = accountObject.returnAccountList(getString(R.string.accountTypePremium), this);
-
-            // BRAK KONT - popup Toast
-            if( acc.length == 0 ) {
-                Log.e(null, "No accounts of type " + R.string.accountTypePremium + " found");
-                Toast.makeText(this, "Brak kont na urządzeniu", Toast.LENGTH_SHORT).show();
-            }
-
-            // ISTNIEJA KONTA - popup z mozliwoscia wyboru konta:
-            if (acc.length != 0) {
-
-               // Toast.makeText(this, "Accounts exists", Toast.LENGTH_SHORT).show();
-
-                this.selectAccountsPopup(acc);
-            }
+            showAboutAppPopup();
 
         } else if (id == R.id.logout) {
 
@@ -582,6 +572,8 @@ public class VodDrawerMenuActivity extends AppCompatActivity
     }
 
 
+
+
     private void showNoPermissionPopup(){
 
         AlertDialog.Builder builder = new AlertDialog.Builder(VodDrawerMenuActivity.this);
@@ -698,6 +690,7 @@ public class VodDrawerMenuActivity extends AppCompatActivity
     // Synchronizacja - Pobranie listy filmow z uwierzytelnieniem zalogowanego uzytkownika
     private class AuthVideoDataReader extends AsyncTask<String, String, String> {
         String s = null;
+        boolean isErrorCatched;
 
 
         String category = String.valueOf(currentCategoryID);
@@ -706,36 +699,46 @@ public class VodDrawerMenuActivity extends AppCompatActivity
             List<NameValuePair> params = new ArrayList<NameValuePair>();
             params.add(new BasicNameValuePair("token", currentAccountToken));
             params.add(new BasicNameValuePair("category", category));
-            jsonVideo = jParserVideo.makeHttpRequest(url_getAuthVideosData, "GET", params);
 
-            try {
-                JSONArray json_array = jsonVideo.getJSONArray("Video");
-                int size = json_array.length();
+            System.out.println("siec wlaczona? " + isNetworkConnected());
 
 
-                for (int i = 0; i < size; i++) {
-                    JSONObject video = json_array.getJSONObject(i);
-                    videoObject = new VideoObject(video.getString("videoname"), video.getString("videourl"), video.getString("videodescription"), video.getBoolean("isBought"), video.getInt("video_ID"), video.getString("videoimageurl"));
-                    videoList.add(videoObject);
+            if (isNetworkConnected()==true){
+                System.out.println("siec wlaczona? " + isNetworkConnected());
+
+                try {
+                    jsonVideo = jParserVideo.makeHttpRequest(url_getAuthVideosData, "GET", params);
+                    JSONArray json_array = jsonVideo.getJSONArray("Video");
+                    int size = json_array.length();
+
+                    for (int i = 0; i < size; i++) {
+                        JSONObject video = json_array.getJSONObject(i);
+                        videoObject = new VideoObject(video.getString("videoname"), video.getString("videourl"), video.getString("videodescription"), video.getBoolean("isBought"), video.getInt("video_ID"), video.getString("videoimageurl"));
+                        videoList.add(videoObject);
+                    }
+
+                    System.out.println("doinbackground Rozmiar video list to: " + videoList.size());
+
+                } catch (JSONException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
                 }
-            } catch (JSONException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-
-
-
-                setVodContentDescription("---"); //blad pobierania filmow
+                catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
-            catch (Exception e) {
-                e.printStackTrace();
-            }
+
+
             return null;
         }
 
         @Override
         protected void onPreExecute() {
-            videoList.clear();
             super.onPreExecute();
+            // TU DODANE!!!!!!!
+            videoList.clear();
+            System.out.println("OnPRE Rozmiar video list to: " + videoList.size());
+
             System.out.println("Rozpoczynamy pobieranie filmów z serwera");
             findViewById(R.id.loadingPanel).setVisibility(View.VISIBLE);
         }
@@ -743,14 +746,21 @@ public class VodDrawerMenuActivity extends AppCompatActivity
         @Override
         protected void onPostExecute(String result) {
 
-            super.onPostExecute(result);
-            System.out.println("Filmy pobrane pomyślnie z serwera!");
-            findViewById(R.id.loadingPanel).setVisibility(View.GONE);
+            if (isErrorCatched ==true){
+                setVodContentDescription("---"); //blad pobierania filmow
+              //  setVodCategoryDescription("");
+            }
+            if (isNetworkConnected()==false){
+                Toast.makeText(getApplication().getBaseContext(), "Brak połączenia z siecia!", Toast.LENGTH_SHORT).show();
+            }
 
+            super.onPostExecute(result);
+            findViewById(R.id.loadingPanel).setVisibility(View.GONE);
 
             // Create the adapter to convert the array to views and attach the adapter to a ListView
             VideosAdapter adapter = new VideosAdapter(VodDrawerMenuActivity.this, videoList);
             listView.setAdapter(adapter);
+            System.out.println("ON POST Rozmiar video list to: " + videoList.size());
 
             if (video_postion!=1){
 
@@ -761,23 +771,12 @@ public class VodDrawerMenuActivity extends AppCompatActivity
                         listView.smoothScrollToPosition(video_postion);
                         video_postion=1;
 
-                        
+
                     }
                 });
 
 
             }
-
-
-
-
-
-
-
-
-
-
-
         }}
 
 
@@ -793,7 +792,7 @@ public class VodDrawerMenuActivity extends AppCompatActivity
         protected String doInBackground(String... args) {
             videoID = args[0];
             List<NameValuePair> params = new ArrayList<NameValuePair>();
-            params.add(new BasicNameValuePair("login", currentAccountLogin));
+            params.add(new BasicNameValuePair("token", currentAccountToken));
             params.add(new BasicNameValuePair("videoID", videoID));
             json = jParser.makeHttpRequest(url_getBuyVideo, "GET", params);
 
@@ -835,8 +834,6 @@ public class VodDrawerMenuActivity extends AppCompatActivity
         }
     }
 
-
-
     // Synchronizacja - Pobranie kategorii filmow
     private class VideoCategoryReader extends AsyncTask<String, String, String> {
         String s = null;
@@ -850,8 +847,6 @@ public class VodDrawerMenuActivity extends AppCompatActivity
                 params.add(new BasicNameValuePair("videoID", "ok"));
                 jsonCategory = jParserVideo.makeHttpRequest(url_getVideosCategory, "GET", params);
             }
-
-
             catch (Exception e) {
                 e.printStackTrace();
             }
@@ -886,7 +881,9 @@ public class VodDrawerMenuActivity extends AppCompatActivity
             }
             catch (JSONException e) {
                 // TODO Auto-generated catch block
+                Toast.makeText(getApplication().getBaseContext(), "Błąd połączenia", Toast.LENGTH_SHORT).show();
                 e.printStackTrace();
+
             }
             catch (Exception e) {
                 e.printStackTrace();
@@ -897,5 +894,25 @@ public class VodDrawerMenuActivity extends AppCompatActivity
             System.out.println("SUCCESS - Pobrano kategorie!");
         }
     }
+
+
+    private boolean isNetworkConnected() {
+        ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+
+        return cm.getActiveNetworkInfo() != null;
+    }
+
+
+    private void showAboutAppPopup(){
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(VodDrawerMenuActivity.this);
+        builder.setTitle("O aplikacji");
+        builder.setMessage("Aplikacja stworzona na potrzeby pracy inżynierskiej");
+
+        final AlertDialog dialog = builder.create();
+        dialog.show();
+
+    }
+
 
 }

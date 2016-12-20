@@ -103,7 +103,7 @@ public class SignUpActivity extends AppCompatActivity {
             super.onPostExecute(result);
 
             if (isNetworkConnected()==false){
-                
+
                 Toast.makeText(getApplication().getBaseContext(), "Brak połączenia z siecia!", Toast.LENGTH_SHORT).show();
             }
             else {

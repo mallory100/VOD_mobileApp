@@ -46,14 +46,9 @@
 
         <menu>
             <item
-                android:id="@+id/appSettings"
-                android:icon="@drawable/ic_menu_camera"
-                android:title="Ustawienia"
-                android:textColor="#ffffff"/>
-            <item
-                android:id="@+id/help"
+                android:id="@+id/about"
                 android:icon="@drawable/ic_menu_gallery"
-                android:title="Pomoc"
+                android:title="O aplikacji"
                 android:textColor="#ffffff"/>
         </menu>
     </item>
