@@ -13,6 +13,9 @@ import org.w3c.dom.Text;
 
 import java.util.ArrayList;
 
+/**
+ * Aktywnosc przedstawiajaca material wideo
+ */
 public class VideoViewActivity extends Activity {
 
     protected VideoView videoView;

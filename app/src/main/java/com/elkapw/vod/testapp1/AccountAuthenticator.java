@@ -23,7 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created by Majka on 2016-10-11.
+ * Klasa autentykatora niezbedna do stworzenia konta uzytkownika na urzadzeniu. Implementacja abstrakcyjnej klasy.
  */
 
 public class AccountAuthenticator extends AbstractAccountAuthenticator {

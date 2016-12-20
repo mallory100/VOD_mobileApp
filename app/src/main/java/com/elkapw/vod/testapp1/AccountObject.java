@@ -7,12 +7,10 @@ import android.accounts.AccountManagerFuture;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.os.Build;
-import android.os.Bundle;
-
 import java.io.Serializable;
 
 /**
- * Created by Majka on 2016-09-25.
+ * Klasa obiektu aktualnie zalogowanego uzytkownika na urzadzeniu
  */
 public class AccountObject implements Serializable {
 

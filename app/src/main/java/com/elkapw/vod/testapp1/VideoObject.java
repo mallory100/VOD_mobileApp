@@ -3,7 +3,7 @@ package com.elkapw.vod.testapp1;
 import java.io.Serializable;
 
 /**
- * Created by Majka on 2016-09-25.
+ * Klasa pojedynczego obiektu wideo pobranego z serwera
  */
 public class VideoObject implements Serializable {
 

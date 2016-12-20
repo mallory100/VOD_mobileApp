@@ -1,12 +1,11 @@
 package com.elkapw.vod.testapp1;
 
-        import java.io.BufferedReader;
+import java.io.BufferedReader;
         import java.io.IOException;
         import java.io.InputStream;
         import java.io.InputStreamReader;
         import java.io.UnsupportedEncodingException;
         import java.util.List;
-
         import org.apache.http.HttpEntity;
         import org.apache.http.HttpResponse;
         import org.apache.http.NameValuePair;
@@ -24,32 +23,32 @@ package com.elkapw.vod.testapp1;
 
         import android.util.Log;
 
+
+/**
+ * Klasa parsujaca otrzymane wyniki z serwera
+ */
+
 public class JSONParser {
 
     static InputStream is = null;
     static JSONObject jObj = null;
     static String json = "";
 
-    static InputStream iStream = null;
-    static JSONArray jarray = null;
-    //static String json = "";
+    // konstruktor
+    public JSONParser() {    }
 
-    // constructor
-    public JSONParser() {
+    // Funkcja pobierajaca JSON z adresu URL
+    // poprzez wykonanie metody POST lub GET HHTP
 
-    }
-
-    // function get json from url
-    // by making HTTP POST or GET mehtod
     public JSONObject makeHttpRequest(String url, String method,
                                       List<NameValuePair> params) {
 
-        // Making HTTP request
+        // Request HTTP
         try {
 
-            // check for request method
+            // sprawdzenie metody HTTP
             if(method == "POST"){
-                // request method is POST
+                // jezeli metoda to POST
                 // defaultHttpClient
                 DefaultHttpClient httpClient = new DefaultHttpClient();
                 HttpPost httpPost = new HttpPost(url);
@@ -60,7 +59,7 @@ public class JSONParser {
                 is = httpEntity.getContent();
 
             }else if(method == "GET"){
-                // request method is GET
+                // jezeli metoda to GET
                 DefaultHttpClient httpClient = new DefaultHttpClient();
                 String paramString = URLEncodedUtils.format(params, "utf-8");
                 url += "?" + paramString;
@@ -93,7 +92,7 @@ public class JSONParser {
             Log.e("Buffer Error", "Error converting result " + e.toString());
         }
 
-        // try parse the string to a JSON object
+        // proba parsowania Stringa na obiekt JSON
         try {
             jObj = new JSONObject(json);
         } catch (JSONException e) {
@@ -104,106 +103,5 @@ public class JSONParser {
         return jObj;
 
     }
-    /////////////////////////////////
-    public JSONArray getJSONFromUrl(String url) {
 
-        StringBuilder builder = new StringBuilder();
-        HttpClient client = new DefaultHttpClient();
-        HttpGet httpGet = new HttpGet(url);
-        try {
-            HttpResponse response = client.execute(httpGet);
-            StatusLine statusLine = response.getStatusLine();
-            int statusCode = statusLine.getStatusCode();
-            if (statusCode == 200) {
-                HttpEntity entity = response.getEntity();
-                InputStream content = entity.getContent();
-                BufferedReader reader = new BufferedReader(new InputStreamReader(content));
-                String line;
-                while ((line = reader.readLine()) != null) {
-                    builder.append(line);
-                }
-            } else {
-                Log.e("==>", "Failed to download file");
-            }
-        } catch (ClientProtocolException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        // Parse String to JSON object
-        try {
-            jarray = new JSONArray( builder.toString());
-        } catch (JSONException e) {
-            Log.e("JSON Parser", "Error parsing data " + e.toString());
-        }
-
-        // return JSON Object
-        return jarray;
-
-    }
-
-
-    public JSONObject makeHttpRequest2(String url) {
-
-        // Making HTTP request
-        try {
-
-            // check for request method
-            //if(method == "POST"){
-            // request method is POST
-            // defaultHttpClient
-            DefaultHttpClient httpClient = new DefaultHttpClient();
-            HttpPost httpPost = new HttpPost(url);
-            //  httpPost.setEntity(new UrlEncodedFormEntity(params));
-
-            HttpResponse httpResponse = httpClient.execute(httpPost);
-            HttpEntity httpEntity = httpResponse.getEntity();
-            is = httpEntity.getContent();
-
-//            }else if(method == "GET"){
-//                // request method is GET
-//                DefaultHttpClient httpClient = new DefaultHttpClient();
-//                //String paramString = URLEncodedUtils.format(params, "utf-8");
-//                url += "?" + paramString;
-//                HttpGet httpGet = new HttpGet(url);
-//
-//                HttpResponse httpResponse = httpClient.execute(httpGet);
-//                HttpEntity httpEntity = httpResponse.getEntity();
-//                is = httpEntity.getContent();
-//            }
-
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        } catch (ClientProtocolException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        try {
-            BufferedReader reader = new BufferedReader(new InputStreamReader(
-                    is, "iso-8859-1"), 8);
-            StringBuilder sb = new StringBuilder();
-            String line = null;
-            while ((line = reader.readLine()) != null) {
-                sb.append(line + "\n");
-            }
-            is.close();
-            json = sb.toString();
-        } catch (Exception e) {
-            Log.e("Buffer Error", "Error converting result " + e.toString());
-        }
-
-        // try parse the string to a JSON object
-        try {
-            jObj = new JSONObject(json);
-        } catch (JSONException e) {
-            Log.e("JSON Parser", "Error parsing data " + e.toString());
-        }
-
-        // return JSON String
-        return jObj;
-
-    }
 }

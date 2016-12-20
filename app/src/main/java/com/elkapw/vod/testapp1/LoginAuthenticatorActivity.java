@@ -30,6 +30,9 @@ import org.json.JSONObject;
 
 import static com.elkapw.vod.testapp1.R.layout.activity_login_authenticator;
 
+/**
+ * Akywnosc odpowiadajaca za proces logowania uzytkownika
+ */
 public class LoginAuthenticatorActivity extends Activity {
 
     public final static String ARG_ACCOUNT_TYPE = "ACCOUNT_TYPE";

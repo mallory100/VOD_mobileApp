@@ -17,7 +17,10 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 
-/***** AKTYWNOSC ODPOWIADAJACA ZA ZAREJESTROWANIE NOWEGO UZYTKOWNIKA ***/
+
+/**
+ * Aktywnosc odpowiadajaca za proces rejestracji nowego uzytkownika.
+ */
 public class SignUpActivity extends AppCompatActivity {
 
     private String mAccountType;

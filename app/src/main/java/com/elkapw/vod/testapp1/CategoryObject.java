@@ -3,7 +3,7 @@ package com.elkapw.vod.testapp1;
 import java.io.Serializable;
 
 /**
- * Created by Majka on 2016-09-25.
+ * Klasa reprezentujaca pojedyncza kategorie pobrana z serwera.
  */
 public class CategoryObject implements Serializable {
 
@@ -12,18 +12,12 @@ public class CategoryObject implements Serializable {
     private String categoryDescription;
     private int isFree;
 
-
-    public CategoryObject(){
-
-
-    }
-
+    public CategoryObject(){     }
 
     public CategoryObject(int mCategoryID, String mCategoryName, String mCategoryDescription) {
         this.categoryID = mCategoryID;
         this.categoryName = mCategoryName;
         this.categoryDescription = mCategoryDescription;
-
     }
 
     public int getCategoryID() {          return categoryID;     }

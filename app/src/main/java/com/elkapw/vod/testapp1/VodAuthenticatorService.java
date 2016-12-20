@@ -5,7 +5,7 @@ import android.content.Intent;
 import android.os.IBinder;
 
 /**
- * Created by Majka on 2016-11-13.
+ * Serwis niezbedny do procesu logowania przy uzyciu autentykatora
  */
 
 public class VodAuthenticatorService extends Service {

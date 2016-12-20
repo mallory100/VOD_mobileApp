@@ -42,6 +42,10 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Aktywnosc glowna - odpowiada steruje innymi aktywnosciami, wyswietlane sa w niej filmy, kategorie, belka nawigacyjna, status zalogowania
+ */
+
 public class VodDrawerMenuActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
