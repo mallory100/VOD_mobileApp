@@ -33,7 +33,6 @@ import static com.elkapw.vod.testapp1.R.layout.activity_login_authenticator;
 public class LoginAuthenticatorActivity extends Activity {
 
     public final static String ARG_ACCOUNT_TYPE = "ACCOUNT_TYPE";
-    public final static String ARG_AUTH_TYPE = "AUTH_TYPE";
     public final static String ARG_IS_ADDING_NEW_ACCOUNT = "IS_ADDING_ACCOUNT";
     public final static String PARAM_USER_PASS = "USER_PASS";
 
@@ -42,21 +41,11 @@ public class LoginAuthenticatorActivity extends Activity {
     EditText accountNameEditText, accountPassEditText; // pola na login i haslo
     Button signIn; //przycisk signIn
     TextView signUp;
-
-    JSONParser jParser = new JSONParser();
-    JSONObject json;
-
     String username, pass, token, currentUserToken;
     String accountType = "com.elkapw.vod.full";
 
     String mAccountType;
     Account[] acc;
-    ListView listViewAccounts;
-    ArrayAdapter<String> arrayAdapter;
-    List<String> accountsArrayList, list;
-    int accountID;
-    Thread watek ;
-    String isUserLogged;
     private  String url_login = "http://192.168.0.14:8080/VOD_servlet/AndroidReturnTokenServlet";
 
 
@@ -88,16 +77,14 @@ public class LoginAuthenticatorActivity extends Activity {
 
             @Override
             public void onClick(View arg0) {
-                // execute method invokes doInBackground() where we open a Http URL connection using the given Servlet URL
-                //and get output response from InputStream and return it.
+                // klikniecie powoduje pobranie danych wprowadzonych przez uzytkownika i wywolanie metody doInBackground, w ktorej wysylane
+                // jest zadanie do serwera w celu uwierzytelnienia i zwrocenia tokenu
                 username = accountNameEditText.getText().toString();
                 pass = accountPassEditText.getText().toString();
-
                 token = null;
 
                 ServerAuthReturnTokenAndLogin newRequest = new ServerAuthReturnTokenAndLogin();
                 newRequest.execute(username, pass);
-
             }
         });
 
@@ -163,38 +150,22 @@ public class LoginAuthenticatorActivity extends Activity {
         String accountPassword = intent.getStringExtra(PARAM_USER_PASS);
         final Account account = new Account(accountName, intent.getStringExtra(AccountManager.KEY_ACCOUNT_TYPE));
 
-        System.out.println(mAccountManager.getAccounts());
 
-           if (getIntent().getBooleanExtra(ARG_IS_ADDING_NEW_ACCOUNT, true)) {
+        if (getIntent().getBooleanExtra(ARG_IS_ADDING_NEW_ACCOUNT, true)) {
 
             String authtoken = intent.getStringExtra(AccountManager.KEY_AUTHTOKEN);
             String authtokenType = "TOKEN"; //                    mAuthTokenType;
 
-            // Creating the account on the device and setting the auth token we got
-            // (Not setting the auth token will cause another call to the server to authenticate the user)
+            //Stworzenie konta i wpisanie do niego pobranego tokenu
             boolean isCorrectlyCreated =  mAccountManager.addAccountExplicitly(account, accountPassword, null);
-               System.out.println("CZY KONTO ZOSTALO POPRAWNIE STWORZONE: " + isCorrectlyCreated );
+            System.out.println("CZY KONTO ZOSTALO POPRAWNIE STWORZONE: " + isCorrectlyCreated );
 
             mAccountManager.setAuthToken(account, authtokenType, authtoken);
 
         } else {
-               //
+
                mAccountManager.setPassword(account, accountPassword);
-
         }
-
-           final Intent intentAccount = new Intent();
-           intentAccount.putExtra(AccountManager.KEY_ACCOUNT_NAME, username);
-           intentAccount.putExtra(AccountManager.KEY_ACCOUNT_TYPE, accountType);
-           //setAccountAuthenticatorResult(intentAccount.getExtras());
-           setResult(RESULT_OK, intentAccount);
-
-    }
-
-    public void goToLoginAuthenticatorActivity() {
-        Intent authenticatorActivityWindow = new Intent(getApplicationContext(), LoginAuthenticatorActivity.class);
-        authenticatorActivityWindow.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        startActivity(authenticatorActivityWindow);
     }
 
     public void goToSignUpActivity() {
@@ -291,6 +262,7 @@ public class LoginAuthenticatorActivity extends Activity {
                         System.out.println("ServerAuth RTL - DoInBackground - SUCCESS!!");
                         currentUserToken = accountToken;
 
+                        //wrzucenie danych w Bundle i wyslanie w inna czesc programu
                         data.putString(AccountManager.KEY_ACCOUNT_NAME, username);
                         data.putString(AccountManager.KEY_ACCOUNT_TYPE, accountType);
                         data.putString(AccountManager.KEY_AUTHTOKEN, currentUserToken);

@@ -12,7 +12,6 @@ public class VodAuthenticatorService extends Service {
     @Override
     public IBinder onBind(Intent intent) {
         AccountAuthenticator authenticator = new AccountAuthenticator(this);
-        System.out.println("WYWOLANIE VodAuthenticationService");
         return authenticator.getIBinder();
     }
 }

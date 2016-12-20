@@ -24,7 +24,6 @@ public class VideoObject implements Serializable {
         this.imageUrl=imageUrl;
     }
 
-
     public boolean getIsBought() {        return isBought;     }
     public void setIsBought(boolean isBought) {         this.isBought = isBought;    }
 

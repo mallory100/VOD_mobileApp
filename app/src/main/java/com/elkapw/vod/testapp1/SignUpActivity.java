@@ -1,38 +1,23 @@
 package com.elkapw.vod.testapp1;
 
-import android.app.AlertDialog;
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-
-import android.accounts.AccountManager;
 import android.content.Intent;
 import android.os.AsyncTask;
-import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import static com.elkapw.vod.testapp1.LoginAuthenticatorActivity.ARG_ACCOUNT_TYPE;
-import static com.elkapw.vod.testapp1.LoginAuthenticatorActivity.PARAM_USER_PASS;
-
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
 import org.json.JSONException;
 import org.json.JSONObject;
-
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * In charge of the Sign up process. Since it's not an AuthenticatorActivity decendent,
- * it returns the result back to the calling activity, which is an AuthenticatorActivity,
- * and it return the result back to the Authenticator
- *
- * User: udinic
- */
-
+/***** AKTYWNOSC ODPOWIADAJACA ZA ZAREJESTROWANIE NOWEGO UZYTKOWNIKA ***/
 public class SignUpActivity extends AppCompatActivity {
 
     private String mAccountType;

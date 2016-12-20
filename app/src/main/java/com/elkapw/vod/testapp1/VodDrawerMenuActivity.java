@@ -5,7 +5,6 @@ import android.accounts.AccountManager;
 import android.accounts.AccountManagerFuture;
 import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Typeface;
@@ -41,7 +40,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class VodDrawerMenuActivity extends AppCompatActivity
@@ -56,11 +54,9 @@ public class VodDrawerMenuActivity extends AppCompatActivity
     ArrayList<CategoryObject> categoryList;
     int currentCategoryID;
 
-
     private static String url_getAuthVideosData = "http://192.168.0.14:8080/VOD_servlet/AndroidReturnVideosForUserServlet";
     private static String url_getBuyVideo = "http://192.168.0.14:8080/VOD_servlet/AndroidBuyVideoServlet";
     private static String url_getVideosCategory = "http://192.168.0.14:8080/VOD_servlet/AndroidReturnListOfVideoCategoriesServlet";
-
     private static String url_baseImageUrl = "http://192.168.0.14:8080/VOD_servlet/";
 
     Menu menu;
@@ -760,8 +756,6 @@ public class VodDrawerMenuActivity extends AppCompatActivity
 
         while ( watek.getState() != Thread.State.TERMINATED){
             findViewById(R.id.loadingPanel).setVisibility(View.VISIBLE);
-            System.out.println("WATEK NIE ZOSTAL UKONCZONY = " + watek.getState());
-            System.out.println("Token użytkownika to: " + accountObject.getAccountToken());
         }
 
         System.out.println("AccountObject LOGIN : " + accountObject.getAccountName());

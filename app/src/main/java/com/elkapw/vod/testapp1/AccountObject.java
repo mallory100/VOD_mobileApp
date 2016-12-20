@@ -24,10 +24,8 @@ public class AccountObject implements Serializable {
     String accountType = "com.elkapw.vod.full";
 
     AccountObject(Context mContext){
-
         AccountManager mAccountManager = AccountManager.get(mContext);
         acc = mAccountManager.getAccountsByType(accountType);
-
     }
 
     public Account[] returnAccountList(String mAccountType, Context mContext) {
@@ -38,25 +36,11 @@ public class AccountObject implements Serializable {
         return acc;
     };
 
-
     public String getAccountName() {
         return accountName;
     }
-
     public void setAccountName(String mAccountName) {
         this.accountName = mAccountName;
-    }
-
-    public AccountObject(String videoName, String videoURL, String videoDescription) {
-
-    }
-
-    public int getAccountID() {
-        return accountID;
-    }
-
-    public void setAccountID(int accountID) {
-        this.accountID = accountID;
     }
 
     public void setAccountToken(String mtoken){         this.accountToken = mtoken;     };
@@ -64,40 +48,10 @@ public class AccountObject implements Serializable {
         return accountToken;
     }
 
-    public Thread.State getThreadStatus(){
-        return  watek.getState();
-    };
-
-
-
-    public void getExistingAccountAuthToken(Account account, String authTokenType, Context mContext, boolean bool) {
-        AccountManager mAccountManager = AccountManager.get(mContext);
-        final AccountManagerFuture<Bundle> future = mAccountManager.getAuthToken(account, authTokenType, null, bool, null, null);
-
-        watek = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    Bundle bnd = future.getResult();
-                    final String authtoken = bnd.getString(AccountManager.KEY_AUTHTOKEN);
-                    setAccountToken(authtoken);
-                    System.out.println("TOKEN POBRANY Z AccountManagera to : " + authtoken);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-        });
-        watek.start();
-
-
-    }
-
     @TargetApi(Build.VERSION_CODES.LOLLIPOP_MR1)
     public void removeAccount(Context mContext){
 
         AccountManager mAccountManager = AccountManager.get(mContext);
-       // mAccountManager.removeAccountExplicitly(acc[accountID]);
-
 
         mAccountManager.removeAccount(acc[accountID], new AccountManagerCallback<Boolean>() {
             @Override
