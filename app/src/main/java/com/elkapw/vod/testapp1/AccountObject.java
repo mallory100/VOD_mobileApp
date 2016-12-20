@@ -16,8 +16,8 @@ import java.io.Serializable;
  */
 public class AccountObject implements Serializable {
 
-    String accountName, accountPassword, accountToken;
-
+    String accountName = "niezalogowany";
+    String accountToken = "brak";
     int accountID;
     Account[] acc;
     Thread watek;
@@ -59,11 +59,10 @@ public class AccountObject implements Serializable {
         this.accountID = accountID;
     }
 
-    private void setNewToken(String mtoken){
-
-        this.accountToken = mtoken;
-
-    };
+    public void setAccountToken(String mtoken){         this.accountToken = mtoken;     };
+    public String getAccountToken() {
+        return accountToken;
+    }
 
     public Thread.State getThreadStatus(){
         return  watek.getState();
@@ -81,7 +80,7 @@ public class AccountObject implements Serializable {
                 try {
                     Bundle bnd = future.getResult();
                     final String authtoken = bnd.getString(AccountManager.KEY_AUTHTOKEN);
-                    setNewToken(authtoken);
+                    setAccountToken(authtoken);
                     System.out.println("TOKEN POBRANY Z AccountManagera to : " + authtoken);
                 } catch (Exception e) {
                     e.printStackTrace();

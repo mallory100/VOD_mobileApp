@@ -1,6 +1,8 @@
 package com.elkapw.vod.testapp1;
 
 import android.accounts.Account;
+import android.accounts.AccountManager;
+import android.accounts.AccountManagerFuture;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -11,7 +13,6 @@ import android.net.ConnectivityManager;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -35,7 +36,6 @@ import com.google.android.gms.appindexing.AppIndex;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.squareup.picasso.Picasso;
 import org.apache.http.NameValuePair;
-import org.apache.http.conn.HttpHostConnectException;
 import org.apache.http.message.BasicNameValuePair;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -63,13 +63,17 @@ public class VodDrawerMenuActivity extends AppCompatActivity
 
     private static String url_baseImageUrl = "http://192.168.0.14:8080/VOD_servlet/";
 
-    String currentAccountLogin, currentAccountToken;
     Menu menu;
     Toolbar toolbar;
     //Button buyButton,watchButton;
     MenuItem userInfo;
     ImageView videoImageView;
     int video_postion =1;
+    Account[] acc;
+    AccountManager mAccountManager;
+    Thread watek ;
+    AccountObject accountObject;
+
     /**
      * ATTENTION: This was auto-generated to implement the App Indexing API.
      * See https://g.co/AppIndexing/AndroidStudio for more information.
@@ -81,18 +85,6 @@ public class VodDrawerMenuActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
 
         currentCategoryID = 1;
-
-        //pobranie LOGINU zalogowanego uzytkownika
-        if (savedInstanceState == null) {
-            Bundle extras = getIntent().getExtras();
-            if(extras == null) {
-                currentAccountLogin= null;
-            } else {
-                currentAccountLogin= extras.getString("Login");
-            }
-        } else {
-            currentAccountLogin = (String) savedInstanceState.getSerializable("Login");
-        }
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_vod_drawer_menu);
@@ -111,61 +103,27 @@ public class VodDrawerMenuActivity extends AppCompatActivity
         toggle.syncState();
 
 
+
+
+        //pobranie Loginu zalogowanego użytkownika:
         // PRZY uruchomieniu wyswietlamy zalogowane konta:
-        AccountObject accountObject = new AccountObject(this);
-        Account[] acc = accountObject.returnAccountList(getString(R.string.accountTypePremium), this);
+        accountObject = new AccountObject(this);
+        acc = accountObject.returnAccountList(getString(R.string.accountTypePremium), this); //lista wszystkich kont (opcja dla uwentualnegoo rozszerzenia aplikacji
 
-        // ISTNIEJA przynajmniej 2 konta - popup z mozliwoscia wyboru konta:
-        if (acc.length >1 && isUserLogged !=true) {
-       //     Toast.makeText(this, "Accounts exists", Toast.LENGTH_SHORT).show();
-            this.selectAccountsPopup(acc);
-        }
-        // istnieje jedno konto wiec nim sie logujemy
-        if (acc.length ==1 && isUserLogged !=true){
-            currentAccountLogin = acc[0].name;
-            accountObject.getExistingAccountAuthToken(acc[0], "TOKEN", getBaseContext(), true);
 
-            while (accountObject.getThreadStatus() != Thread.State.TERMINATED) {
-                System.out.println("WATEK NIE ZOSTAL UKONCZONY = " + accountObject.getThreadStatus());
-                System.out.println("TOKEN Uzytkownika TO : " + accountObject.accountToken);
-                findViewById(R.id.loadingPanel).setVisibility(View.VISIBLE);
-            }
+        //jezeli istnieje konto zaloguj sie na niego
+        if (acc.length ==1){
 
-           currentAccountToken = accountObject.accountToken;
-           findViewById(R.id.loadingPanel).setVisibility(View.INVISIBLE);
-            System.out.println("*****TOKEN : " + currentAccountToken);
-
-        }
-
-        // ustawienie flagi ze uzytkownik jest zalogowany
-        if (currentAccountLogin != null){
+            getDataAboutExistingAccount(); // pobranie loginu i tokena zalogowanego użytkownika
+            findViewById(R.id.loadingPanel).setVisibility(View.INVISIBLE);
             isUserLogged = true;
         }
-
 
         //Stworzenie ListView z filmami pobranymi z serwera
         listView = (ListView) findViewById(R.id.listViewMovies);
         listView.setFocusable(true);
         videoList = new ArrayList<VideoObject>();
         loadVideosFromServer();
-
-        // Listener Listview
-        /*
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-
-                new Toast(VodDrawerMenuActivity.this).setText("Kliknales pozycje "+ position);
-
-            }
-
-        }); */
-
-
-
-
-
 
         //Stworzenie NavigationView
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
@@ -178,7 +136,7 @@ public class VodDrawerMenuActivity extends AppCompatActivity
         // gdy uzytkownik jest zalogowany to Item w Menu zmienia sie na "Wyloguj"
         if (isUserLogged == true){
             this.menu.findItem(R.id.logout).setTitle("Wyloguj");
-            userInfo.setTitle("Witaj użytkowniku " + currentAccountLogin);
+            userInfo.setTitle("Witaj użytkowniku " + accountObject.getAccountName());
         }
         if (isUserLogged == false){
 
@@ -190,7 +148,7 @@ public class VodDrawerMenuActivity extends AppCompatActivity
         //pobranie kategorii filmów z serwera:
         returnCategories();
 
-        System.out.println("Aktualnie zalogowany: " + currentAccountLogin);
+        System.out.println("Aktualnie zalogowany: " + accountObject.getAccountName());
 
             // ATTENTION: This was auto-generated to implement the App Indexing API.
         // See https://g.co/AppIndexing/AndroidStudio for more information.
@@ -309,6 +267,7 @@ public class VodDrawerMenuActivity extends AppCompatActivity
         } else if (id == R.id.about) {
 
             showAboutAppPopup();
+            getDataAboutExistingAccount();
 
         } else if (id == R.id.logout) {
 
@@ -513,68 +472,7 @@ public class VodDrawerMenuActivity extends AppCompatActivity
 
     }
 
-    private void selectAccountsPopup(Account[] acc){
-
-        final AccountObject accountObject = new AccountObject(this);
-
-        List<String> list = new ArrayList<String>() ;
-
-        for (int j =0; j <acc.length; j++){
-            list.add(acc[j].name);
-            System.out.println(list);
-        }
-
-        CharSequence[] cs = list.toArray(new CharSequence[list.size()]);
-        System.out.println("CS TO JEST: " + Arrays.toString(cs));
-
-        AlertDialog.Builder builder = new AlertDialog.Builder(VodDrawerMenuActivity.this);
-        builder.setTitle("Jestes zalogowany na urzadzeniu! ");
-
-        // WYBRANIE ISTNIEJACEGO KONTA:
-        builder.setItems(cs, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                System.out.println("Klikniety " + which);
-                accountObject.setAccountID(which);
-
-                Account mAccount = accountObject.acc[which];
-                accountObject.accountName = accountObject.acc[which].name;
-                currentAccountLogin = accountObject.accountName;
-                accountObject.getExistingAccountAuthToken(mAccount, "TOKEN", getBaseContext(), true);
-
-                while (accountObject.getThreadStatus() != Thread.State.TERMINATED) {
-                    System.out.println("WATEK NIE ZOSTAL UKONCZONY = " + accountObject.getThreadStatus());
-                    System.out.println("TOKEN Uzytkownika TO : " + accountObject.accountToken);
-
-                }
-
-                System.out.println("TOKEN Uzytkownika TO : " + accountObject.accountToken);
-
-                ServerAuthLogin newRequestLogin = new ServerAuthLogin();
-                newRequestLogin.execute(accountObject.accountName, accountObject.accountToken);
-
-                System.out.println("STATUS REQUESTA " + newRequestLogin.getStatus());
-
-            }
-
-        });
-
-        final AlertDialog dialog = builder.create();
-
-        new android.os.Handler().postDelayed(new Runnable() {
-
-            public void run() {
-                dialog.show();
-            }
-
-        }, 1000L);
-
-    }
-
-
-
-
-    private void showNoPermissionPopup(){
+       private void showNoPermissionPopup(){
 
         AlertDialog.Builder builder = new AlertDialog.Builder(VodDrawerMenuActivity.this);
         builder.setTitle("BRAK DOSTĘPU!");
@@ -583,84 +481,13 @@ public class VodDrawerMenuActivity extends AppCompatActivity
         builder.show();
     }
 
-//TO DO???? uzywany przy popupie z filmami
-    class ServerAuthLogin extends AsyncTask<String, String, String> {
-        String s = null;
-        JSONParser jParser = new JSONParser();
-        JSONObject json;
-
-        String accountToken;
-        String accountLogin;
-
-        private String url_login = "http://192.168.0.14:8080/red56/AndroidLoginServlet";
-
-        @Override
-        protected String doInBackground(String... args) {
-            accountLogin = args[0];
-            accountToken = args[1];
-
-            // Getting username and password from user input
-            List<NameValuePair> params = new ArrayList<NameValuePair>();
-            params.add(new BasicNameValuePair("u", accountLogin));
-            params.add(new BasicNameValuePair("p", accountToken));
-            json = jParser.makeHttpRequest(url_login, "GET", params);
-            System.out.println("OPERACJA : LOGIN USER");
-
-            return "Wykonano doinBackground";
-        }
-
-        @Override
-        protected void onPreExecute() {
-
-            super.onPreExecute();
-            System.out.println("ServerAuth - ON PRE EXECUTE - DONE!!");
-        }
-
-        @Override
-        protected void onPostExecute(String result) {
-
-            try {
-                //informacja zwrotna czy powodzenie
-                s = json.getString("info");
-                if (s.equals("success")) {
-                    System.out.println("ServerAuth - DoInBackground - SUCCESS!!");
-                    isUserLogged = true;
-                    goToVodContentActivity();
-
-                } else {
-
-                    System.out.println("ServerAuth - DoInBackground - FAIL!!");
-                    Toast.makeText(VodDrawerMenuActivity.this, "Token jest nieaktualny", Toast.LENGTH_LONG).show();
-
-                    goToLoginAuthenticatorActivity(); //powrot do ekranu logowania
-
-                }
-
-            } catch (JSONException e) {
-                // TODO Auto-generated catch block
-
-                e.printStackTrace();
-
-            }
-            System.out.println("ServerAuth - ON POST EXECUTE - DONE!!");
-
-        }
-    }
-
     // Funkcje obslugujace przejscia miedzy Activity
     public void goToLoginAuthenticatorActivity() {
         Intent authenticatorActivityWindow = new Intent(getApplicationContext(), LoginAuthenticatorActivity.class);
         authenticatorActivityWindow.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         startActivity(authenticatorActivityWindow);
     }
-    public void goToVodContentActivity(){
 
-        Intent vodContent = new Intent(getApplicationContext(), VodDrawerMenuActivity.class);
-        vodContent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        vodContent.putExtra("Login", currentAccountLogin);
-        vodContent.putExtra("isUserLogged", isUserLogged);
-        startActivity(vodContent);
-    }
     public void goToSpecificVideoContentActivity(VideoObject video){
 
         Intent specificVideoContent = new Intent(getApplicationContext(), VideoViewActivity.class);
@@ -697,7 +524,7 @@ public class VodDrawerMenuActivity extends AppCompatActivity
         @Override
         protected String doInBackground(String... args) {
             List<NameValuePair> params = new ArrayList<NameValuePair>();
-            params.add(new BasicNameValuePair("token", currentAccountToken));
+            params.add(new BasicNameValuePair("token", accountObject.getAccountToken()));
             params.add(new BasicNameValuePair("category", category));
 
             System.out.println("siec wlaczona? " + isNetworkConnected());
@@ -792,7 +619,7 @@ public class VodDrawerMenuActivity extends AppCompatActivity
         protected String doInBackground(String... args) {
             videoID = args[0];
             List<NameValuePair> params = new ArrayList<NameValuePair>();
-            params.add(new BasicNameValuePair("token", currentAccountToken));
+            params.add(new BasicNameValuePair("token", accountObject.getAccountToken()));
             params.add(new BasicNameValuePair("videoID", videoID));
             json = jParser.makeHttpRequest(url_getBuyVideo, "GET", params);
 
@@ -912,6 +739,53 @@ public class VodDrawerMenuActivity extends AppCompatActivity
         final AlertDialog dialog = builder.create();
         dialog.show();
 
+    }
+
+
+    // Funkcja pobierajaca dane na temat zalogowanego konta (glownie token) z AccountManagera
+    private void getDataAboutExistingAccount(){
+
+        // lista zalogowanych kont, domyslnie w aplikacji zawsze tylko jedno
+        Account mAccount =  acc[0];
+        mAccountManager = AccountManager.get(this);
+        getExistingAccountAuthToken(mAccount, "TOKEN");
+
+        while ( watek.getState() != Thread.State.TERMINATED){
+            findViewById(R.id.loadingPanel).setVisibility(View.VISIBLE);
+            System.out.println("WATEK NIE ZOSTAL UKONCZONY = " + watek.getState());
+            System.out.println("Token użytkownika to: " + accountObject.getAccountToken());
+        }
+
+        System.out.println("AccountObject LOGIN : " + accountObject.getAccountName());
+        System.out.println("AccountObject TOKEN : " + accountObject.getAccountToken());
+
+
+    };
+
+    private void updateCurrentUserData(String mtoken){
+        accountObject.setAccountName(acc[0].name);
+        accountObject.setAccountToken(mtoken);
+
+    };
+
+
+    private void getExistingAccountAuthToken(Account account, String authTokenType) {
+        final AccountManagerFuture<Bundle> future = mAccountManager.getAuthToken(account, authTokenType, null, this, null, null);
+
+        watek = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    Bundle bnd = future.getResult();
+                    final String authtoken = bnd.getString(AccountManager.KEY_AUTHTOKEN);
+                    updateCurrentUserData(authtoken);
+                    System.out.println("TOKEN POBRANY Z AccountManagera to : " + authtoken);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+        watek.start();
     }
 
 

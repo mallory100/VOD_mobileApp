@@ -2,39 +2,27 @@ package com.elkapw.vod.testapp1;
 
 import android.accounts.Account;
 import android.accounts.AccountManager;
-import android.accounts.AccountManagerFuture;
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Handler;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.LinearLayout;
 import android.widget.ListView;
-import android.widget.PopupWindow;
 import android.widget.TextView;
 import android.widget.Toast;
-
-
 import com.google.android.gms.appindexing.Action;
 import com.google.android.gms.appindexing.AppIndex;
 import com.google.android.gms.common.api.GoogleApiClient;
-
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
 import org.json.JSONException;
@@ -69,6 +57,8 @@ public class LoginAuthenticatorActivity extends Activity {
     int accountID;
     Thread watek ;
     String isUserLogged;
+    private  String url_login = "http://192.168.0.14:8080/VOD_servlet/AndroidReturnTokenServlet";
+
 
     /**
      * ATTENTION: This was auto-generated to implement the App Indexing API.
@@ -106,7 +96,7 @@ public class LoginAuthenticatorActivity extends Activity {
                 token = null;
 
                 ServerAuthReturnTokenAndLogin newRequest = new ServerAuthReturnTokenAndLogin();
-                newRequest.execute(username,pass);
+                newRequest.execute(username, pass);
 
             }
         });
@@ -115,16 +105,12 @@ public class LoginAuthenticatorActivity extends Activity {
 
             @Override
             public void onClick(View arg0) {
-
                 goToSignUpActivity();
-
-
             }
         });
     }
 
     private void findViewsById() {
-
         accountNameEditText = (EditText) findViewById(R.id.accountName);
         accountPassEditText = (EditText) findViewById(R.id.accountPassword);
         signIn = (Button) findViewById(R.id.submit);
@@ -217,11 +203,10 @@ public class LoginAuthenticatorActivity extends Activity {
         startActivity(signUpActivityWindow);
     }
 
-    public void goToVodContentActivity(String currentAccountLogin){
+    public void goToVodContentActivity(){
 
         Intent vodContent = new Intent(getApplicationContext(), VodDrawerMenuActivity.class);
         vodContent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        vodContent.putExtra("Login", currentAccountLogin);
         startActivity(vodContent);
     }
 
@@ -244,174 +229,12 @@ public class LoginAuthenticatorActivity extends Activity {
         return super.onOptionsItemSelected(item);
     }
 
-    // Popup wyświetlający aktualnie zalogowane konta dla aplikacji VOD na urzadzeniu
-    private void selectAccountsPopup(){
-        //View inflatedView = getLayoutInflater().inflate(R.layout.accounts_popup, null);
-        //listViewAccounts = (ListView) inflatedView.findViewById(R.id.listViewAccounts);
-
-        list = new ArrayList<String>() ;
-
-        for (int j =0; j <acc.length; j++){
-            list.add(acc[j].name);
-            System.out.println(list);
-        }
-
-        CharSequence[] cs = list.toArray(new CharSequence[list.size()]);
-        System.out.println("CS TO JEST: " + Arrays.toString(cs));
-
-        AlertDialog.Builder builder = new AlertDialog.Builder(LoginAuthenticatorActivity.this);
-        builder.setTitle("Jesteś zalogowany na urządzeniu! ");
-
-
-        // WYBRANIE ISTNIEJACEGO KONTA:
-        //   builder.setMessage("Wybierz jedno z poniższych kont bądź utwórz nowe");
-        builder.setItems(cs, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                System.out.println("Kliknięty " + which);
-                accountID = which;
-
-                Account mAccount =  acc[which];
-                username = acc[which].name;
-                getExistingAccountAuthToken(mAccount, "TOKEN");
-
-                while ( watek.getState() != Thread.State.TERMINATED){
-                    System.out.println("WATEK NIE ZOSTAL UKONCZONY = " + watek.getState());
-                    System.out.println("TOKEN Uzytkownika TO : " + currentUserToken);
-
-                }
-
-                System.out.println("TOKEN Uzytkownika TO : " + currentUserToken);
-
-                ServerAuthLogin newRequestLogin = new ServerAuthLogin();
-                newRequestLogin.execute(username,currentUserToken);
-
-                System.out.println("STATUS REQUESTA " +newRequestLogin.getStatus());
-
-            }
-
-        });
-
-        final AlertDialog dialog = builder.create();
-
-        new Handler().postDelayed(new Runnable(){
-
-            public void run() {
-                dialog.show();
-            }
-
-        }, 1000L);
-
-    }
-
-    private void setNewToken(String mtoken){
-
-        currentUserToken = mtoken;
-
-    };
-
-    private Thread.State getThreadStatus(Thread mthread){
-            return  mthread.getState();
-    };
-
-    private void getExistingAccountAuthToken(Account account, String authTokenType) {
-       final AccountManagerFuture<Bundle> future = mAccountManager.getAuthToken(account, authTokenType, null, this, null, null);
-
-       watek = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    Bundle bnd = future.getResult();
-                    final String authtoken = bnd.getString(AccountManager.KEY_AUTHTOKEN);
-                    setNewToken(authtoken);
-                    System.out.println("TOKEN POBRANY Z AccountManagera to : " + authtoken);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-        });
-               watek.start();
-        }
-
-
-    class ServerAuthLogin extends AsyncTask<String, String, String> {
-        String s = null;
-        JSONParser jParser = new JSONParser();
-        JSONObject json;
-
-        String accountToken;
-        String accountLogin;
-
-        //private String url_login = "http://192.168.0.14:F80/red56/AndroidLoginServlet";
-
-        private String url_login = "http://192.168.0.14:8080/VOD_servlet/AndroidLoginServlet";
-
-
-
-        @Override
-        protected String doInBackground(String... args) {
-            accountLogin = args[0];
-            accountToken = args[1];
-
-            // Getting username and password from user input
-            List<NameValuePair> params = new ArrayList<NameValuePair>();
-            params.add(new BasicNameValuePair("u", accountLogin));
-            params.add(new BasicNameValuePair("p", accountToken));
-            json = jParser.makeHttpRequest(url_login, "GET", params);
-            System.out.println("OPERACJA : LOGIN USER");
-
-            return "Wykonano doinBackground";
-        }
-
-        @Override
-        protected void onPreExecute() {
-
-            super.onPreExecute();
-            System.out.println("ServerAuth - ON PRE EXECUTE - DONE!!");
-
-
-        }
-
-        @Override
-        protected void onPostExecute(String result) {
-
-            super.onPostExecute(result);
-            try {
-                //informacja zwrotna czy powodzenie
-                s = json.getString("info");
-                if (s.equals("success")) {
-
-                    System.out.println("ServerAuth - DoInBackground - SUCCESS!! ZALOGOWANO: " + accountLogin);
-                    goToVodContentActivity(accountLogin);
-                } else {
-
-                    System.out.println("ServerAuth - DoInBackground - FAIL!!");
-                    Toast.makeText(LoginAuthenticatorActivity.this, "Token jest nieaktualny", Toast.LENGTH_LONG).show();
-                    goToLoginAuthenticatorActivity(); //powrot do ekranu logowania
-
-
-                }
-
-            } catch (JSONException e) {
-                // TODO Auto-generated catch block
-
-                e.printStackTrace();
-
-            }
-
-
-            System.out.println("ServerAuth - ON POST EXECUTE - DONE!!");
-
-        }
-    }
-
 
         class ServerAuthReturnTokenAndLogin extends AsyncTask<String, String, String> {
             String s = null;
             JSONParser jParser = new JSONParser();
             JSONObject json;
             String accountToken, accountLogin;
-            private  String url_login = "http://192.168.0.14:8080/VOD_servlet/AndroidReturnTokenServlet";
             boolean isExceptionCatched=false;
             @Override
             protected String doInBackground(String... args) {
@@ -476,7 +299,7 @@ public class LoginAuthenticatorActivity extends Activity {
                         final Intent res = new Intent();
                         res.putExtras(data);
                         finishLogin(res);
-                        goToVodContentActivity(username);
+                        goToVodContentActivity();
                         Toast.makeText(getApplication().getBaseContext(), "Pomyślnie zalogowano!", Toast.LENGTH_LONG).show();
                     }
                 }
@@ -486,14 +309,12 @@ public class LoginAuthenticatorActivity extends Activity {
 
     }
 
+    // funkcja sprawdzająca stan połączenia urządzenia do sieci
     private boolean isNetworkConnected() {
         ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
 
         return cm.getActiveNetworkInfo() != null;
     }
-
-
-
 
 };
 
