@@ -261,6 +261,14 @@ public class VodDrawerMenuActivity extends AppCompatActivity
                 if (currentCategoryID!=1){
                     showNoPermissionPopup();
                 }
+                else{
+                    setVodCategoryDescription("Jeszcze chwilka...");
+                    setVodContentDescription("Trwa ładowanie");
+                    videoList.clear();
+                    loadVideosFromServer();
+                    setVodCategoryDescription(categoryObject.getCategoryName());
+                    setVodContentDescription(categoryObject.getCategoryDescription());
+                }
             }
 
 
@@ -475,7 +483,7 @@ public class VodDrawerMenuActivity extends AppCompatActivity
        private void showNoPermissionPopup(){
 
         AlertDialog.Builder builder = new AlertDialog.Builder(VodDrawerMenuActivity.this);
-        builder.setTitle("BRAK DOSTĘPU!");
+           builder.setTitle("BRAK DOSTĘPU!");
         builder.setMessage("Zaloguj się, aby zobaczyć pełną listę filmów");
         builder.create();
         builder.show();
