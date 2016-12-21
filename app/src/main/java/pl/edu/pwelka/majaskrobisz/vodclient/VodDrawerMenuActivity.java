@@ -743,8 +743,8 @@ public class VodDrawerMenuActivity extends AppCompatActivity
 
         AlertDialog.Builder builder = new AlertDialog.Builder(VodDrawerMenuActivity.this);
         builder.setTitle("O aplikacji");
-        builder.setMessage("Aplikacja stworzona na potrzeby pracy inżynierskiej");
-
+        builder.setMessage("Aplikacja stworzona na potrzeby pracy inżynierskiej. \nPolitechnika Warszawska. \nWydział EiTi. \nMaja Skrobisz ");
+        builder.setIcon(R.drawable.elka);
         final AlertDialog dialog = builder.create();
         dialog.show();
 
