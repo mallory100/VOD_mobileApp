@@ -1,4 +1,4 @@
-package com.elkapw.vod.testapp1;
+package pl.edu.pwelka.majaskrobisz.vodclient;
 
 import android.accounts.Account;
 import android.accounts.AccountManager;

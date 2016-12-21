@@ -1,4 +1,4 @@
-package com.elkapw.vod.testapp1;
+package pl.edu.pwelka.majaskrobisz.vodclient;
 
 import android.accounts.Account;
 import android.accounts.AccountManager;
@@ -195,7 +195,8 @@ public class VodDrawerMenuActivity extends AppCompatActivity
             //pobrane kategorie dodajemy do menu
              for (int i = 0; i < categoryList.size(); i++) {
                  String currentID = "cat" + i;
-                int resId = getResources().getIdentifier(currentID,"id", "com.elkapw.vod.testapp1");
+                int resId = getResources().getIdentifier(currentID,"id", getPackageName());
+                 //"pl.edu.pwelka.majaskrobisz.vodclient"
                 menuItemList.add(submenu.add(0, resId, 0, categoryList.get(i).getCategoryName()));
             };
 
@@ -323,7 +324,7 @@ public class VodDrawerMenuActivity extends AppCompatActivity
                 // Otherwise, set the URL to null.
                 Uri.parse("http://host/path"),
                 // TODO: Make sure this auto-generated app URL is correct.
-                Uri.parse("android-app://com.elkapw.vod.testapp1/http/host/path")
+                Uri.parse("android-app://pl.edu.pwelka.majaskrobisz.vodclient/http/host/path")
         );
         AppIndex.AppIndexApi.start(client, viewAction);
     }
@@ -342,7 +343,7 @@ public class VodDrawerMenuActivity extends AppCompatActivity
                 // Otherwise, set the URL to null.
                 Uri.parse("http://host/path"),
                 // TODO: Make sure this auto-generated app URL is correct.
-                Uri.parse("android-app://com.elkapw.vod.testapp1/http/host/path")
+                Uri.parse("android-app://pl.edu.pwelka.majaskrobisz.vodclient/http/host/path")
         );
         AppIndex.AppIndexApi.end(client, viewAction);
         client.disconnect();

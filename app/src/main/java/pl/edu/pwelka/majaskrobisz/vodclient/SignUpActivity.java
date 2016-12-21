@@ -1,4 +1,4 @@
-package com.elkapw.vod.testapp1;
+package pl.edu.pwelka.majaskrobisz.vodclient;
 
 import android.content.Context;
 import android.net.ConnectivityManager;
@@ -9,7 +9,7 @@ import android.os.AsyncTask;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
-import static com.elkapw.vod.testapp1.LoginAuthenticatorActivity.ARG_ACCOUNT_TYPE;
+import static pl.edu.pwelka.majaskrobisz.vodclient.LoginAuthenticatorActivity.ARG_ACCOUNT_TYPE;
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
 import org.json.JSONException;

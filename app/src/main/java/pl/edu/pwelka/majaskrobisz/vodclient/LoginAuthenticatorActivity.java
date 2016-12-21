@@ -1,4 +1,4 @@
-package com.elkapw.vod.testapp1;
+package pl.edu.pwelka.majaskrobisz.vodclient;
 
 import android.accounts.Account;
 import android.accounts.AccountManager;
@@ -12,10 +12,8 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 import com.google.android.gms.appindexing.Action;
@@ -28,7 +26,7 @@ import org.apache.http.message.BasicNameValuePair;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import static com.elkapw.vod.testapp1.R.layout.activity_login_authenticator;
+import static pl.edu.pwelka.majaskrobisz.vodclient.R.layout.activity_login_authenticator;
 
 /**
  * Akywnosc odpowiadajaca za proces logowania uzytkownika
@@ -122,7 +120,7 @@ public class LoginAuthenticatorActivity extends Activity {
                 // Otherwise, set the URL to null.
                 Uri.parse("http://host/path"),
                 // TODO: Make sure this auto-generated app URL is correct.
-                Uri.parse("android-app://com.elkapw.vod.testapp1/http/host/path")
+                Uri.parse("android-app://pl.edu.pwelka.majaskrobisz.vodclient/http/host/path")
         );
         AppIndex.AppIndexApi.start(client, viewAction);
     }
@@ -141,7 +139,7 @@ public class LoginAuthenticatorActivity extends Activity {
                 // Otherwise, set the URL to null.
                 Uri.parse("http://host/path"),
                 // TODO: Make sure this auto-generated app URL is correct.
-                Uri.parse("android-app://com.elkapw.vod.testapp1/http/host/path")
+                Uri.parse("android-app://pl.edu.pwelka.majaskrobisz.vodclient/http/host/path")
         );
         AppIndex.AppIndexApi.end(client, viewAction);
         client.disconnect();

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.elkapw.vod.testapp1">
+    package="pl.edu.pwelka.majaskrobisz.vodclient">
 
     <uses-permission android:name="android.permission.AUTHENTICATE_ACCOUNTS" />
     <uses-permission android:name="android.permission.GET_ACCOUNTS" />
@@ -41,7 +41,7 @@
             android:value="@integer/google_play_services_version" />
 
 
-        <service android:name=".VodAuthenticatorService"
+        <service android:name="pl.edu.pwelka.majaskrobisz.vodclient.VodAuthenticatorService"
 
             android:exported="true">
             <intent-filter>
@@ -58,7 +58,7 @@
 
 
         <activity
-            android:name=".LoginAuthenticatorActivity"
+            android:name="pl.edu.pwelka.majaskrobisz.vodclient.LoginAuthenticatorActivity"
             android:label="Logowanie użytkownika">
 
             <intent-filter>
@@ -67,13 +67,13 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".VideoViewActivity"
+            android:name="pl.edu.pwelka.majaskrobisz.vodclient.VideoViewActivity"
             android:label="Video On Demand"
             android:screenOrientation="landscape"
             />
 
         <activity
-            android:name=".VodDrawerMenuActivity"
+            android:name="pl.edu.pwelka.majaskrobisz.vodclient.VodDrawerMenuActivity"
             android:label="Wideo na żądanie"
             android:theme="@style/AppTheme.NoActionBar">
 
@@ -86,7 +86,7 @@
         </activity>
 
 
-        <activity android:name=".SignUpActivity"
+        <activity android:name="pl.edu.pwelka.majaskrobisz.vodclient.SignUpActivity"
             android:label="Rejestracja nowego użytkownika">
         </activity>
     </application>

@@ -1,4 +1,4 @@
-package com.elkapw.vod.testapp1;
+package pl.edu.pwelka.majaskrobisz.vodclient;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
@@ -6,12 +6,7 @@ import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
 import android.widget.MediaController;
-import android.widget.TextView;
 import android.widget.VideoView;
-
-import org.w3c.dom.Text;
-
-import java.util.ArrayList;
 
 /**
  * Aktywnosc przedstawiajaca material wideo
