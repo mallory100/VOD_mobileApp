@@ -24,7 +24,7 @@ import java.util.List;
 public class SignUpActivity extends AppCompatActivity {
 
     private String mAccountType;
-    String accountName, accountPassword, accountToken;
+    String accountName, accountPassword;
     private static String url_login = "http://192.168.0.14:8080/VOD_servlet/AndroidCreateAccountServlet";
     JSONParser jParser = new JSONParser();
     JSONObject json;

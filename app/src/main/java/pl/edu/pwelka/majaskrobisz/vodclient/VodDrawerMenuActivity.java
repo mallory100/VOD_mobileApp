@@ -65,7 +65,6 @@ public class VodDrawerMenuActivity extends AppCompatActivity
 
     Menu menu;
     Toolbar toolbar;
-    //Button buyButton,watchButton;
     MenuItem userInfo;
     ImageView videoImageView;
     int video_postion =1;
@@ -94,15 +93,13 @@ public class VodDrawerMenuActivity extends AppCompatActivity
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        //Stworzenie DRAWERLAYOUT >???
+        //Stworzenie DRAWERLAYOUT
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawer.setDrawerListener(toggle);
 
         toggle.syncState();
-
-
 
 
         //pobranie Loginu zalogowanego użytkownika:
@@ -196,7 +193,6 @@ public class VodDrawerMenuActivity extends AppCompatActivity
              for (int i = 0; i < categoryList.size(); i++) {
                  String currentID = "cat" + i;
                 int resId = getResources().getIdentifier(currentID,"id", getPackageName());
-                 //"pl.edu.pwelka.majaskrobisz.vodclient"
                 menuItemList.add(submenu.add(0, resId, 0, categoryList.get(i).getCategoryName()));
             };
 
@@ -276,7 +272,6 @@ public class VodDrawerMenuActivity extends AppCompatActivity
         } else if (id == R.id.about) {
 
             showAboutAppPopup();
-            getDataAboutExistingAccount();
 
         } else if (id == R.id.logout) {
 
@@ -348,15 +343,6 @@ public class VodDrawerMenuActivity extends AppCompatActivity
         AppIndex.AppIndexApi.end(client, viewAction);
         client.disconnect();
     }
-/*
-
-    private void setPositionClicked(int[] mTable, int mPosition, int mWasClicked){
-       mTable[mPosition] = mWasClicked;
-    }
-    private int getPositionClicked(int[] mTable, int mPosition){
-       int wasClicked =   mTable[mPosition];
-        return wasClicked;
-    }*/
 
     public class VideosAdapter extends ArrayAdapter<VideoObject> {
         public VideosAdapter(Context context, ArrayList<VideoObject> videos) {
@@ -373,10 +359,6 @@ public class VodDrawerMenuActivity extends AppCompatActivity
                 convertView = LayoutInflater.from(getContext()).inflate(R.layout.video_item, parent, false);
             }
 
-
-
-
-
             //Podlaczenie elementow widoku do xmla
             final TextView videoName = (TextView) convertView.findViewById(R.id.videoName);
             final Button buyButton = (Button) convertView.findViewById(R.id.buyButton);
@@ -384,10 +366,8 @@ public class VodDrawerMenuActivity extends AppCompatActivity
             final Button watchButton = (Button) convertView.findViewById(R.id.watchButton);
             videoImageView = (ImageView) convertView.findViewById(R.id.videoImageView);
 
-
             // Pobranie obrazkow biblioteka Picasso!!!
             Picasso.with(VodDrawerMenuActivity.this).load(url_baseImageUrl + video.getImageUrl()).fit().centerCrop().into(videoImageView);
-
 
             // Uzupelnienie danych w widoku
             videoName.setText(video.getVideoName());
@@ -571,7 +551,6 @@ public class VodDrawerMenuActivity extends AppCompatActivity
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-            // TU DODANE!!!!!!!
             videoList.clear();
             System.out.println("OnPRE Rozmiar video list to: " + videoList.size());
 
@@ -606,11 +585,8 @@ public class VodDrawerMenuActivity extends AppCompatActivity
                         System.out.println("Odswiezenie do pozycji" + video_postion);
                         listView.smoothScrollToPosition(video_postion);
                         video_postion=1;
-
-
                     }
                 });
-
 
             }
         }}
@@ -653,7 +629,7 @@ public class VodDrawerMenuActivity extends AppCompatActivity
                 if (s.equals("success")) {
 
                     System.out.println("FILM pomyslnie zakupiony");
-                    loadVideosFromServer(); //tutaj dac videoID
+                    loadVideosFromServer();
 
                 } else {
 

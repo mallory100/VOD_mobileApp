@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <account-authenticator xmlns:android="http://schemas.android.com/apk/res/android"
-android:accountType="com.elkapw.vod.full"
+android:accountType="pl.edu.pwelka.vodclient"
 android:icon="@drawable/applogonew"
 android:smallIcon="@drawable/applogonew"
 android:label="@string/accountName"

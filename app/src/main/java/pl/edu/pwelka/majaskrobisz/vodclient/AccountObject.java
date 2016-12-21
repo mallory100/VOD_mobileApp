@@ -18,8 +18,8 @@ public class AccountObject implements Serializable {
     String accountToken = "brak";
     int accountID;
     Account[] acc;
-    Thread watek;
-    String accountType = "com.elkapw.vod.full";
+    String accountType = "pl.edu.pwelka.vodclient";
+
 
     AccountObject(Context mContext){
         AccountManager mAccountManager = AccountManager.get(mContext);
@@ -56,7 +56,7 @@ public class AccountObject implements Serializable {
             public void run(AccountManagerFuture<Boolean> future) {
                 try {
                     if (future.getResult()) {
-                        // do something
+
                     }
                 } catch (Exception e) {
                     e.printStackTrace();

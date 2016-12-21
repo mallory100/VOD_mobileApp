@@ -81,9 +81,8 @@
 
     <!-- Strings related to login -->
     <string name="accountName">"Video On Demand"</string>
-    <string name="accountTypePremium">com.elkapw.vod.full</string>
+    <string name="accountTypePremium">pl.edu.pwelka.vodclient</string>
     <string name="accountTypeStandard">com.elkapw.vod.standard</string>
-
 
     <string name="vodContentDescription">"Trwa ładowanie"</string>
     <string name="vodCategoryDescription">"Jeszcze chwila..."</string>

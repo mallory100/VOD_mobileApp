@@ -43,7 +43,7 @@ public class LoginAuthenticatorActivity extends Activity {
     Button signIn; //przycisk signIn
     TextView signUp;
     String username, pass, token, currentUserToken;
-    String accountType = "com.elkapw.vod.full";
+    String accountType = "pl.edu.pwelka.vodclient";
 
     String mAccountType;
     Account[] acc;
@@ -184,8 +184,7 @@ public class LoginAuthenticatorActivity extends Activity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        // getMenuInflater().inflate(R.menu.menu_main, menu);
+
         return true;
     }
 
