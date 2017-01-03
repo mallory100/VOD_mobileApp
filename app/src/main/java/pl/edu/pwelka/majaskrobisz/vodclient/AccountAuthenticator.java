@@ -3,24 +3,9 @@ package pl.edu.pwelka.majaskrobisz.vodclient;
 import android.accounts.AbstractAccountAuthenticator;
 import android.accounts.Account;
 import android.accounts.AccountAuthenticatorResponse;
-import android.accounts.AccountManager;
 import android.accounts.NetworkErrorException;
-import android.app.AlertDialog;
 import android.content.Context;
-import android.content.Intent;
-import android.os.AsyncTask;
 import android.os.Bundle;
-import android.text.TextUtils;
-import android.util.Log;
-import android.widget.Toast;
-
-import org.apache.http.NameValuePair;
-import org.apache.http.message.BasicNameValuePair;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Klasa autentykatora niezbedna do stworzenia konta uzytkownika na urzadzeniu. Implementacja abstrakcyjnej klasy.
@@ -64,10 +49,6 @@ public class AccountAuthenticator extends AbstractAccountAuthenticator {
             account, String[] features){
         return null;
     };
-
-
-
-
 
 
     }

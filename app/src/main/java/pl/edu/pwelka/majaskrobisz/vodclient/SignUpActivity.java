@@ -10,13 +10,13 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 import static pl.edu.pwelka.majaskrobisz.vodclient.LoginAuthenticatorActivity.ARG_ACCOUNT_TYPE;
+import static pl.edu.pwelka.majaskrobisz.vodclient.LoginAuthenticatorActivity.SERVER_URL;
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
 import org.json.JSONException;
 import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
-
 
 /**
  * Aktywnosc odpowiadajaca za proces rejestracji nowego uzytkownika.
@@ -25,7 +25,8 @@ public class SignUpActivity extends AppCompatActivity {
 
     private String mAccountType;
     String accountName, accountPassword;
-    private static String url_login = "http://192.168.0.14:8080/VOD_servlet/AndroidCreateAccountServlet";
+    private static String url_login = SERVER_URL+ "/AndroidCreateAccountServlet";
+
     JSONParser jParser = new JSONParser();
     JSONObject json;
 

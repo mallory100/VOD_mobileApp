@@ -33,6 +33,7 @@ import static pl.edu.pwelka.majaskrobisz.vodclient.R.layout.activity_login_authe
  */
 public class LoginAuthenticatorActivity extends Activity {
 
+    public final static String SERVER_URL = "http://192.168.0.12:8080/VOD_servlet";
     public final static String ARG_ACCOUNT_TYPE = "ACCOUNT_TYPE";
     public final static String ARG_IS_ADDING_NEW_ACCOUNT = "IS_ADDING_ACCOUNT";
     public final static String PARAM_USER_PASS = "USER_PASS";
@@ -47,7 +48,7 @@ public class LoginAuthenticatorActivity extends Activity {
 
     String mAccountType;
     Account[] acc;
-    private  String url_login = "http://192.168.0.14:8080/VOD_servlet/AndroidReturnTokenServlet";
+    private  String url_login = SERVER_URL + "/AndroidReturnTokenServlet";
 
 
     /**

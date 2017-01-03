@@ -41,6 +41,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
+import static pl.edu.pwelka.majaskrobisz.vodclient.LoginAuthenticatorActivity.SERVER_URL;
+
 
 /**
  * Aktywnosc glowna - odpowiada steruje innymi aktywnosciami, wyswietlane sa w niej filmy, kategorie, belka nawigacyjna, status zalogowania
@@ -58,11 +60,10 @@ public class VodDrawerMenuActivity extends AppCompatActivity
     ArrayList<CategoryObject> categoryList;
     int currentCategoryID;
 
-    private static String url_getAuthVideosData = "http://192.168.0.14:8080/VOD_servlet/AndroidReturnVideosForUserServlet";
-    private static String url_getBuyVideo = "http://192.168.0.14:8080/VOD_servlet/AndroidBuyVideoServlet";
-    private static String url_getVideosCategory = "http://192.168.0.14:8080/VOD_servlet/AndroidReturnListOfVideoCategoriesServlet";
-    private static String url_baseImageUrl = "http://192.168.0.14:8080/VOD_servlet/";
-
+    private static String url_getAuthVideosData = SERVER_URL + "/AndroidReturnVideosForUserServlet";
+    private static String url_getBuyVideo = SERVER_URL +"/AndroidBuyVideoServlet";
+    private static String url_getVideosCategory = SERVER_URL + "/AndroidReturnListOfVideoCategoriesServlet";
+    private static String url_baseImageUrl = SERVER_URL ;
     Menu menu;
     Toolbar toolbar;
     MenuItem userInfo;
@@ -719,7 +720,8 @@ public class VodDrawerMenuActivity extends AppCompatActivity
 
         AlertDialog.Builder builder = new AlertDialog.Builder(VodDrawerMenuActivity.this);
         builder.setTitle("O aplikacji");
-        builder.setMessage("Aplikacja stworzona na potrzeby pracy inżynierskiej. \nPolitechnika Warszawska. \nWydział EiTi. \nMaja Skrobisz ");
+        builder.setMessage("Aplikacja stworzona na potrzeby pracy inżynierskiej. \nTemat: System wideo na żądanie na urządzenia mobilne" +
+                "\nAutor: Maja Skrobisz \nUczelnia: Politechnika Warszawska \nWydział: Elektroniki i Technik Informacyjnych");
         builder.setIcon(R.drawable.elka);
         final AlertDialog dialog = builder.create();
         dialog.show();

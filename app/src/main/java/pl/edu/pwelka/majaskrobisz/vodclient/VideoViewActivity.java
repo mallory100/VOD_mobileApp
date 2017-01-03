@@ -7,6 +7,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.widget.MediaController;
 import android.widget.VideoView;
+import static pl.edu.pwelka.majaskrobisz.vodclient.LoginAuthenticatorActivity.SERVER_URL;
 
 /**
  * Aktywnosc przedstawiajaca material wideo
@@ -14,13 +15,11 @@ import android.widget.VideoView;
 public class VideoViewActivity extends Activity {
 
     protected VideoView videoView;
-    protected String baseURL = "http://192.168.0.14:8080/VOD_servlet";
+    protected String baseURL = SERVER_URL;
     ProgressDialog progressDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-
-        String uri1 = "http://192.168.42.193:5080/vodmovies/vid1.mp4"; // lokalne usb tethering wideo
 
         super.onCreate(savedInstanceState);
 
