@@ -37,7 +37,7 @@ public class JSONParser {
     // poprzez wykonanie metody POST lub GET HHTP
 
     public JSONObject makeHttpRequest(String url, String method,
-                                      List<NameValuePair> params) {
+                                      List<NameValuePair> params) throws Exception {
 
         // Request HTTP
         try {
@@ -72,6 +72,7 @@ public class JSONParser {
             e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
+            throw new Exception(e.getMessage());
         }
 
         try {

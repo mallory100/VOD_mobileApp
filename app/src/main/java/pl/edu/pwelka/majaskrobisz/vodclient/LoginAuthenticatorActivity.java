@@ -32,8 +32,8 @@ import static pl.edu.pwelka.majaskrobisz.vodclient.R.layout.activity_login_authe
  * Akywnosc odpowiadajaca za proces logowania uzytkownika
  */
 public class LoginAuthenticatorActivity extends Activity {
+    public static String SERVER_URL = null;
 
-    public final static String SERVER_URL = "http://192.168.0.12:8080/VOD_servlet";
     public final static String ARG_ACCOUNT_TYPE = "ACCOUNT_TYPE";
     public final static String ARG_IS_ADDING_NEW_ACCOUNT = "IS_ADDING_ACCOUNT";
     public final static String PARAM_USER_PASS = "USER_PASS";
@@ -208,12 +208,12 @@ public class LoginAuthenticatorActivity extends Activity {
             JSONObject json;
             String accountToken, accountLogin;
             boolean isExceptionCatched=false;
+            boolean isJsonParserExceptionCatched= false;
             @Override
             protected String doInBackground(String... args) {
                 accountLogin = args[0] ;
                 accountToken = args[1];
 
-                if (isNetworkConnected()==true){
                     try{
                         // Pobranie loginu i tokenu
                         List<NameValuePair> params = new ArrayList<NameValuePair>();
@@ -232,8 +232,8 @@ public class LoginAuthenticatorActivity extends Activity {
                     catch (Exception e) {
                         // TODO Auto-generated catch block
                         e.printStackTrace();
+                        isJsonParserExceptionCatched = true;
                     }
-                                    }
 
                 return "Wykonano doinBackground";
             }
@@ -250,11 +250,12 @@ public class LoginAuthenticatorActivity extends Activity {
 
                 super.onPostExecute(result);
                 if (isExceptionCatched==true){
-                    Toast.makeText(getApplication().getBaseContext(), "Nieprawidłowy login bądź hasło! Spróbuj ponownie", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getApplication().getBaseContext(), "Nieprawidłowy login bądź hasło! Spróbuj ponownie.", Toast.LENGTH_SHORT).show();
                 }
-                if (isNetworkConnected()==false){
-                    Toast.makeText(getApplication().getBaseContext(), "Brak połączenia z siecia!", Toast.LENGTH_SHORT).show();
+                if (isJsonParserExceptionCatched==true){
+                    Toast.makeText(getApplication().getBaseContext(), "Brak połączenia z siecią!", Toast.LENGTH_SHORT).show();
                 }
+
                 else {
                     //informacja zwrotna czy powodzenie
                     Bundle data = new Bundle();

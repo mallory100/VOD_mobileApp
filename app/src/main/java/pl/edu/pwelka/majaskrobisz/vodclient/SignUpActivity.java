@@ -60,13 +60,13 @@ public class SignUpActivity extends AppCompatActivity {
         String accountName = ((TextView) findViewById(R.id.accountName)).getText().toString().trim();
         String accountPassword = ((TextView) findViewById(R.id.accountPassword)).getText().toString().trim();
         String s = null;
-        boolean isErrorCatched = false;
+        boolean isExceptionCatched = false;
+        boolean isJsonParserExceptionCatched = false;
 
         @Override
         protected String doInBackground(String... args) {
 
             //jezeli dostep do sieci:
-            if (isNetworkConnected()==true) {
                     // Pobranie loginu i hasla od uzytkownika
                 try{
                     List<NameValuePair> params = new ArrayList<NameValuePair>();
@@ -75,10 +75,13 @@ public class SignUpActivity extends AppCompatActivity {
                     json = jParser.makeHttpRequest(url_login, "GET", params);
                     s = json.getString("info");
                 } catch (JSONException e) {
-                    isErrorCatched = true;
+                    isExceptionCatched = true;
+                    e.printStackTrace();
+                } catch (Exception e) {
+                    isJsonParserExceptionCatched = true;
                     e.printStackTrace();
                 }
-            }
+
             return null;
         }
 
@@ -91,26 +94,23 @@ public class SignUpActivity extends AppCompatActivity {
         protected void onPostExecute(String result) {
             super.onPostExecute(result);
 
-            if (isNetworkConnected()==false){
-
-                Toast.makeText(getApplication().getBaseContext(), "Brak połączenia z siecia!", Toast.LENGTH_SHORT).show();
+            if (isExceptionCatched==true){
+                Toast.makeText(getApplication().getBaseContext(), "Błąd podczas tworzenia konta", Toast.LENGTH_SHORT).show();
             }
-            else {
-
-                if (isErrorCatched==true){
-                    Toast.makeText(getApplication().getBaseContext(), "Błąd podczas tworzenia konta", Toast.LENGTH_SHORT).show();
-                }
+            if (isJsonParserExceptionCatched==true){
+                Toast.makeText(getApplication().getBaseContext(), "Brak połączenia z siecią!", Toast.LENGTH_SHORT).show();
+            }
                 else {
                     if (s.equals("success")) {
                         goToLoginAuthenticatorActivity();
                         Toast.makeText(getApplication().getBaseContext(), "Pomyślnie stworzono konto!", Toast.LENGTH_LONG).show();
                     }
                     else{
-                        Toast.makeText(getApplication().getBaseContext(), "Błąd podczas tworzenia konta", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getApplication().getBaseContext(), "Konto o podanym loginie już istnieje. Wprowadź inne dane.", Toast.LENGTH_SHORT).show();
                     }
             }
             }}
-        }
+
             @Override
     public void onBackPressed() {
         setResult(RESULT_CANCELED);

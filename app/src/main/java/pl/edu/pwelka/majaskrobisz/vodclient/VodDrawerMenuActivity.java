@@ -6,12 +6,17 @@ import android.accounts.AccountManagerFuture;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.net.ConnectivityManager;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.NetworkOnMainThreadException;
+import android.preference.Preference;
+import android.preference.PreferenceFragment;
+import android.preference.PreferenceManager;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -39,6 +44,9 @@ import org.apache.http.message.BasicNameValuePair;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.net.URL;
+import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.List;
 import static pl.edu.pwelka.majaskrobisz.vodclient.LoginAuthenticatorActivity.SERVER_URL;
@@ -59,11 +67,11 @@ public class VodDrawerMenuActivity extends AppCompatActivity
     ListView listView;
     ArrayList<CategoryObject> categoryList;
     int currentCategoryID;
-
-    private static String url_getAuthVideosData = SERVER_URL + "/AndroidReturnVideosForUserServlet";
-    private static String url_getBuyVideo = SERVER_URL +"/AndroidBuyVideoServlet";
-    private static String url_getVideosCategory = SERVER_URL + "/AndroidReturnListOfVideoCategoriesServlet";
-    private static String url_baseImageUrl = SERVER_URL ;
+    private static String url_getAuthVideosData;
+    private static String url_getBuyVideo ;
+    private static String url_getVideosCategory;
+    private static String url_baseImageUrl ;
+    String pingURL;
     Menu menu;
     Toolbar toolbar;
     MenuItem userInfo;
@@ -73,7 +81,9 @@ public class VodDrawerMenuActivity extends AppCompatActivity
     AccountManager mAccountManager;
     Thread watek ;
     AccountObject accountObject;
-
+    MyPreferenceFragment myPreferenceFragment;
+    AlertDialog alertDialog;
+    String port;
     /**
      * ATTENTION: This was auto-generated to implement the App Indexing API.
      * See https://g.co/AppIndexing/AndroidStudio for more information.
@@ -89,7 +99,6 @@ public class VodDrawerMenuActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_vod_drawer_menu);
 
-
         //Stworzenie TOOLbara
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -99,15 +108,12 @@ public class VodDrawerMenuActivity extends AppCompatActivity
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawer.setDrawerListener(toggle);
-
         toggle.syncState();
-
 
         //pobranie Loginu zalogowanego użytkownika:
         // PRZY uruchomieniu wyswietlamy zalogowane konta:
         accountObject = new AccountObject(this);
         acc = accountObject.returnAccountList(getString(R.string.accountTypePremium), this); //lista wszystkich kont (opcja dla uwentualnegoo rozszerzenia aplikacji
-
 
         //jezeli istnieje konto zaloguj sie na niego
         if (acc.length ==1){
@@ -117,15 +123,54 @@ public class VodDrawerMenuActivity extends AppCompatActivity
             isUserLogged = true;
         }
 
+
+
         //Stworzenie ListView z filmami pobranymi z serwera
         listView = (ListView) findViewById(R.id.listViewMovies);
         listView.setFocusable(true);
         videoList = new ArrayList<VideoObject>();
-        loadVideosFromServer();
+
+        //okno ustawien ip serwera
+
+        SERVER_URL = PreferenceManager.getDefaultSharedPreferences(this).getString("ipAddress", null);
+        port = PreferenceManager.getDefaultSharedPreferences(this).getString("port", null);
+        setIpAddress(SERVER_URL, port);
+
+        myPreferenceFragment = (MyPreferenceFragment) getFragmentManager().findFragmentById(R.id.preferencesFragment);
+
+        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
+        LayoutInflater inflater = this.getLayoutInflater();
+        View dialogView = inflater.inflate(R.layout.settings_menu, null);
+        dialogBuilder.setView(dialogView);
+
+        Button checkServerStatus = (Button) dialogView.findViewById(R.id.checkServerStatusButton);
+        final TextView status = (TextView) dialogView.findViewById(R.id.status);
+
+        checkServerStatus.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                if (isConnectedToServer(3000)==true){
+                    status.setBackgroundColor(Color.GREEN);
+                    status.setText("Uzyskano połączenie z serwerem");
+
+                    finish();
+                    startActivity(getIntent());}
+                else
+                {
+                    status.setBackgroundColor(Color.RED);
+                    status.setText("Brak połączenia z serwerem");
+
+                }
+
+
+                }
+        });
+        alertDialog= dialogBuilder.create();
 
         //Stworzenie NavigationView
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
-        navigationView.setNavigationItemSelectedListener(this);
+            navigationView.setNavigationItemSelectedListener(this);
 
         menu = navigationView.getMenu();
 
@@ -143,10 +188,11 @@ public class VodDrawerMenuActivity extends AppCompatActivity
 
         }
 
-        //pobranie kategorii filmów z serwera:
-        returnCategories();
-
         System.out.println("Aktualnie zalogowany: " + accountObject.getAccountName());
+
+
+
+
 
             // ATTENTION: This was auto-generated to implement the App Indexing API.
         // See https://g.co/AppIndexing/AndroidStudio for more information.
@@ -182,7 +228,7 @@ public class VodDrawerMenuActivity extends AppCompatActivity
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-      //  getMenuInflater().inflate(R.menu.vod_drawer_menu, menu);
+        getMenuInflater().inflate(R.menu.vod_drawer_menu, menu);
 
         super.onCreateOptionsMenu(menu);
 
@@ -217,6 +263,11 @@ public class VodDrawerMenuActivity extends AppCompatActivity
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
+
+            alertDialog.show();
+
+ //           myPreferenceFragment.getView().setVisibility(View.VISIBLE);
+
             return true;
         }
 
@@ -507,7 +558,7 @@ public class VodDrawerMenuActivity extends AppCompatActivity
     // Synchronizacja - Pobranie listy filmow z uwierzytelnieniem zalogowanego uzytkownika
     private class AuthVideoDataReader extends AsyncTask<String, String, String> {
         String s = null;
-        boolean isErrorCatched;
+        boolean isExceptionCatched;
 
 
         String category = String.valueOf(currentCategoryID);
@@ -516,12 +567,6 @@ public class VodDrawerMenuActivity extends AppCompatActivity
             List<NameValuePair> params = new ArrayList<NameValuePair>();
             params.add(new BasicNameValuePair("token", accountObject.getAccountToken()));
             params.add(new BasicNameValuePair("category", category));
-
-            System.out.println("siec wlaczona? " + isNetworkConnected());
-
-
-            if (isNetworkConnected()==true){
-                System.out.println("siec wlaczona? " + isNetworkConnected());
 
                 try {
                     jsonVideo = jParserVideo.makeHttpRequest(url_getAuthVideosData, "GET", params);
@@ -534,17 +579,15 @@ public class VodDrawerMenuActivity extends AppCompatActivity
                         videoList.add(videoObject);
                     }
 
-                    System.out.println("doinbackground Rozmiar video list to: " + videoList.size());
-
                 } catch (JSONException e) {
                     // TODO Auto-generated catch block
                     e.printStackTrace();
+                    isExceptionCatched=true;
                 }
                 catch (Exception e) {
                     e.printStackTrace();
-                }
+                    isExceptionCatched=true;
             }
-
 
             return null;
         }
@@ -553,21 +596,17 @@ public class VodDrawerMenuActivity extends AppCompatActivity
         protected void onPreExecute() {
             super.onPreExecute();
             videoList.clear();
-            System.out.println("OnPRE Rozmiar video list to: " + videoList.size());
-
             System.out.println("Rozpoczynamy pobieranie filmów z serwera");
             findViewById(R.id.loadingPanel).setVisibility(View.VISIBLE);
         }
 
         @Override
         protected void onPostExecute(String result) {
+            if (isExceptionCatched == true){
+                setVodCategoryDescription("Brak kategorii");
+                setVodContentDescription("Błąd podczas połączenia z serwerem"); //blad pobierania filmow
+                Toast.makeText(getApplication().getBaseContext(), "Błąd podczas pobierania listy filmów!", Toast.LENGTH_SHORT).show();
 
-            if (isErrorCatched ==true){
-                setVodContentDescription("---"); //blad pobierania filmow
-              //  setVodCategoryDescription("");
-            }
-            if (isNetworkConnected()==false){
-                Toast.makeText(getApplication().getBaseContext(), "Brak połączenia z siecia!", Toast.LENGTH_SHORT).show();
             }
 
             super.onPostExecute(result);
@@ -576,10 +615,8 @@ public class VodDrawerMenuActivity extends AppCompatActivity
             // Create the adapter to convert the array to views and attach the adapter to a ListView
             VideosAdapter adapter = new VideosAdapter(VodDrawerMenuActivity.this, videoList);
             listView.setAdapter(adapter);
-            System.out.println("ON POST Rozmiar video list to: " + videoList.size());
 
             if (video_postion!=1){
-
                 listView.post(new Runnable() {
                     @Override
                     public void run() {
@@ -600,6 +637,8 @@ public class VodDrawerMenuActivity extends AppCompatActivity
         JSONParser jParser = new JSONParser();
         JSONObject json;
         String videoID;
+        boolean isExceptionCatched = false;
+        boolean isJsonParserExceptionCatched = false;
 
         @Override
         protected String doInBackground(String... args) {
@@ -607,9 +646,21 @@ public class VodDrawerMenuActivity extends AppCompatActivity
             List<NameValuePair> params = new ArrayList<NameValuePair>();
             params.add(new BasicNameValuePair("token", accountObject.getAccountToken()));
             params.add(new BasicNameValuePair("videoID", videoID));
-            json = jParser.makeHttpRequest(url_getBuyVideo, "GET", params);
+            try {
+                json = jParser.makeHttpRequest(url_getBuyVideo, "GET", params);
+                s = json.getString("info");
 
-           return null;
+            } catch (JSONException e) {
+                // TODO Auto-generated catch block
+
+                isExceptionCatched = true;
+                e.printStackTrace();
+
+            } catch (Exception e) {
+                e.printStackTrace();
+                isJsonParserExceptionCatched = true;
+            }
+            return null;
         }
 
         @Override
@@ -624,9 +675,15 @@ public class VodDrawerMenuActivity extends AppCompatActivity
         protected void onPostExecute(String result) {
 
             super.onPostExecute(result);
-            try {
+            if (isExceptionCatched == true) {
+                Toast.makeText(getApplication().getBaseContext(), "Błąd podczas kupowania filmu", Toast.LENGTH_SHORT).show();
+
+            }
+            if (isJsonParserExceptionCatched == true) {
+                Toast.makeText(getApplication().getBaseContext(), "Brak połączenia z siecią", Toast.LENGTH_SHORT).show();
+            }
+            else{
                 //informacja zwrotna czy powodzenie
-                s = json.getString("info");
                 if (s.equals("success")) {
 
                     System.out.println("FILM pomyslnie zakupiony");
@@ -635,22 +692,17 @@ public class VodDrawerMenuActivity extends AppCompatActivity
                 } else {
 
                     System.out.println("Blad podczas zakupu filmu");
-                    video_postion=1;
+                    video_postion = 1;
                 }
-
-            } catch (JSONException e) {
-                // TODO Auto-generated catch block
-
-                e.printStackTrace();
-
-            }
+            };
         }
-    }
 
+    }
     // Synchronizacja - Pobranie kategorii filmow
     private class VideoCategoryReader extends AsyncTask<String, String, String> {
         String s = null;
         JSONObject jsonCategory = new JSONObject();
+        boolean isExceptionCatched = false;
 
         @Override
         protected String doInBackground(String... args) {
@@ -662,6 +714,7 @@ public class VodDrawerMenuActivity extends AppCompatActivity
             }
             catch (Exception e) {
                 e.printStackTrace();
+                isExceptionCatched = true;
             }
             return null;
         }
@@ -672,6 +725,8 @@ public class VodDrawerMenuActivity extends AppCompatActivity
             super.onPreExecute();
             System.out.println("Rozpoczynamy pobieranie kategorii filmow z serwera");
             findViewById(R.id.loadingPanel).setVisibility(View.VISIBLE);
+
+
         }
 
         @Override
@@ -686,7 +741,6 @@ public class VodDrawerMenuActivity extends AppCompatActivity
                 JSONArray json_array = jsonCategory.getJSONArray("Category");
                 System.out.println(json_array);
                     for (int i = 0 ;i < json_array.length(); i++) {
-
                         JSONObject category = json_array.getJSONObject(i);
                         categoryList.add(i, new CategoryObject(category.getInt("category"),category.getString("categoryname"),category.getString("categorydescription")));
                         System.out.println(categoryList);
@@ -694,12 +748,17 @@ public class VodDrawerMenuActivity extends AppCompatActivity
             }
             catch (JSONException e) {
                 // TODO Auto-generated catch block
-                Toast.makeText(getApplication().getBaseContext(), "Błąd połączenia", Toast.LENGTH_SHORT).show();
                 e.printStackTrace();
+                isExceptionCatched = true;
 
             }
             catch (Exception e) {
                 e.printStackTrace();
+                isExceptionCatched = true;
+            }
+
+            if (isExceptionCatched==true){
+                Toast.makeText(getApplication().getBaseContext(), "Błąd podczas pobierania kategorii", Toast.LENGTH_SHORT).show();
             }
 
             //Ponowne wywolanie OnCreate funkcji dla menu (pojawily sie kategorie)
@@ -713,6 +772,27 @@ public class VodDrawerMenuActivity extends AppCompatActivity
         ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
 
         return cm.getActiveNetworkInfo() != null;
+    }
+
+    public boolean isConnectedToServer(int timeout) {
+        try{
+            URL myUrl = new URL(pingURL);
+            URLConnection connection = myUrl.openConnection();
+            connection.setConnectTimeout(timeout);
+            connection.connect();
+            return true;
+        }
+        catch (NetworkOnMainThreadException e){
+            e.printStackTrace();
+            return true;
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+
+            // Handle your exceptions
+            return false;
+        }
+
     }
 
 
@@ -771,6 +851,59 @@ public class VodDrawerMenuActivity extends AppCompatActivity
             }
         });
         watek.start();
+    }
+
+    public void setIpAddress(String ipAddress, String port){
+        pingURL = "http://" + ipAddress;
+        SERVER_URL = "http://" + ipAddress + ":"+  port + "/VOD_servlet";
+        url_getAuthVideosData = SERVER_URL + "/AndroidReturnVideosForUserServlet";
+        url_getBuyVideo = SERVER_URL +"/AndroidBuyVideoServlet";
+        url_getVideosCategory = SERVER_URL + "/AndroidReturnListOfVideoCategoriesServlet";
+        url_baseImageUrl = SERVER_URL ;
+        //pobranie kategorii filmów z serwera:
+        returnCategories();
+        //pobranie filmów
+        loadVideosFromServer();
+    };
+
+
+    public static class MyPreferenceFragment extends PreferenceFragment implements SharedPreferences.OnSharedPreferenceChangeListener
+    {
+        @Override
+        public void onCreate(final Bundle savedInstanceState)
+        {
+            super.onCreate(savedInstanceState);
+            addPreferencesFromResource(R.xml.prefs);
+        }
+
+
+        @Override
+        public void onResume() {
+            super.onResume();
+            getPreferenceScreen().getSharedPreferences().registerOnSharedPreferenceChangeListener(this);
+        }
+
+        @Override
+        public void onPause() {
+            super.onPause();
+            getPreferenceScreen().getSharedPreferences().unregisterOnSharedPreferenceChangeListener(this);
+        }
+
+        @Override
+        public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key)
+        {
+            if (key.equals("ipAddress"))
+            {
+                // get preference by key
+                Preference pref = findPreference(key);
+            }
+            if (key.equals("port"))
+            {
+                // get preference by key
+                Preference pref = findPreference(key);
+            }
+        }
+
     }
 
 

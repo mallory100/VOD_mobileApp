@@ -2,7 +2,11 @@
 
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
     <PreferenceCategory android:title="Ustawienia VOD" />
-    <CheckBoxPreference android:title="Testowe ustawienie"
-        android:key="isChecked"
-        android:summary="Testowe ustawienie typu chexbox"/>
+    <EditTextPreference android:title="Adres IP serwera"
+        android:key="ipAddress"
+        android:summary="IP serwera, na którym znajdują się filmy"></EditTextPreference>
+    <EditTextPreference android:title="Port Serwera"
+        android:key="port"
+        android:summary="Port, na którym udostepniony jest serwer"></EditTextPreference>
+
 </PreferenceScreen>
