@@ -801,7 +801,7 @@ public class VodDrawerMenuActivity extends AppCompatActivity
         AlertDialog.Builder builder = new AlertDialog.Builder(VodDrawerMenuActivity.this);
         builder.setTitle("O aplikacji");
         builder.setMessage("Aplikacja stworzona na potrzeby pracy inżynierskiej. \nTemat: System wideo na żądanie na urządzenia mobilne" +
-                "\nAutor: Maja Skrobisz \nUczelnia: Politechnika Warszawska \nWydział: Elektroniki i Technik Informacyjnych");
+                "\nAutor: Maja Skrobisz \nPromotor: dr inż. Grzegorz Galiński \nUczelnia: Politechnika Warszawska \nWydział: Elektroniki i Technik Informacyjnych");
         builder.setIcon(R.drawable.elka);
         final AlertDialog dialog = builder.create();
         dialog.show();
